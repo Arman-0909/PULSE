@@ -65,5 +65,5 @@ async def check_service(service):
             "response_time": metric.response_time,
             "checked_at": metric.checked_at.strftime("%H:%M:%S")
         })
-    except Exception:
-        pass
+    except Exception as e:
+        logger.error(f"Broadcast failed: {e}")
