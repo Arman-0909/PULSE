@@ -3,12 +3,18 @@ from sqlmodel import Session, select
 from sqlalchemy import desc
 from app.db.database import engine
 from app.db.models import Service, Metric, ServiceGroup
-from fastapi.templating import Jinja2Templates
+from jinja2 import Environment, FileSystemLoader
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
+import os
 
 router = APIRouter()
-templates = Jinja2Templates(directory="app/templates")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
+env = Environment(
+    loader=FileSystemLoader("app/templates"),
+    autoescape=True
+)
 
 # ---------------------- SCHEMAS ----------------------
 
@@ -63,10 +69,11 @@ def dashboard(request: Request):
                 "uptime": round(uptime, 2)
             })
 
-    return templates.TemplateResponse(
-        "dashboard.html",
-        {"request": request, "services": data}
-    )
+    template = env.get_template("dashboard.html")
+
+    html = template.render(services=data)
+
+    return HTMLResponse(content=html)
 
 
 # ---------------------- SERVICES ----------------------
@@ -203,3 +210,17 @@ def assign_group(service_id: int, group_id: int):
         session.commit()
         session.refresh(service)
         return service
+    
+
+@router.delete("/services/{service_id}")
+def delete_service(service_id: int):
+    with Session(engine) as session:
+        service = session.get(Service, service_id)
+
+        if not service:
+            return {"msg": "not found"}
+
+        session.delete(service)
+        session.commit()
+
+        return {"msg": "deleted"}
