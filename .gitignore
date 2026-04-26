@@ -1,4 +1,50 @@
+env/
+*.pyc
+.env
+pulse.db
+*.db
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
 env/
-pulse.db
+venv/
+ENV/
+
+# Environment variables (IMPORTANT)
+.env
+
+# Database
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python build
+build/
+dist/
+*.egg-info/
+
+# Cache
+.cache/
+
+# pytest (if you add later)
+.pytest_cache/
+
+# mypy (if you use later)
+.mypy_cache/
+
+# coverage (if you test later)
+.coverage
+htmlcov/

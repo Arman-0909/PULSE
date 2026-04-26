@@ -1,109 +1,188 @@
-# Pulse
+# ⚡ PULSE — API Monitoring System
 
-Real-time API Monitoring and Uptime Tracking System
+> Real-time API health monitoring with WebSocket live updates, JWT auth, and PostgreSQL support.
 
-Pulse is a backend system designed to monitor APIs continuously, track uptime, log performance metrics, and provide a simple dashboard for real-time insights.
-
----
-
-## Features
-
-- Automated API monitoring using background scheduler  
-- Uptime and success rate tracking  
-- Response time analytics  
-- Failure detection and logging  
-- Live service status (UP / DOWN)  
-- Service grouping support  
-- Lightweight dashboard (Jinja2)  
-- Modular backend architecture  
+![Dashboard](docs/dashboard.png)
 
 ---
 
-## Tech Stack
+## 🚀 Features
 
-- Backend: FastAPI  
-- Database: SQLite (SQLModel)  
-- Scheduler: APScheduler  
-- HTTP Client: httpx  
-- Templating: Jinja2  
+### Real-time Monitoring
+- **WebSocket Live Updates** — Dashboard receives metric pushes instantly, no polling
+- **Automated Health Checks** — Pings all services every 30s (configurable via env)
+- **Uptime Tracking** — Calculates uptime % from historical metrics
+- **Response Time Sparklines** — SVG charts from real data
+- **Live Indicator** — Green "Live" badge when WebSocket is connected, auto-reconnects
 
----
+### Authentication
+- **Sign Up / Sign In** — Tabbed login page, real user accounts stored in DB
+- **bcrypt Hashed Passwords** — No plaintext, uses `bcrypt.hashpw()` + salt
+- **JWT Sessions** — `python-jose` HS256 tokens in httponly cookies (24h expiry)
+- **Protected Admin** — All admin/CRUD routes require valid JWT
+- **Public Pages** — Dashboard and home are accessible without login
 
-## Project Structure
+### Admin Panel (Full CRUD)
+- **Add Services** — Name, URL, group, duplicate detection, auto `https://` prefix
+- **Edit Services** — Modal with pre-filled fields, inline update
+- **Delete Services** — Confirmation modal, cascades metric deletion
+- **Service Groups** — Create and assign groups
+- **Toast Notifications** — Success/error feedback on every action
 
-app/
-├── api/            # API routes  
-├── db/             # Database models and engine  
-├── scheduler/      # Background jobs  
-├── services/       # Monitoring logic  
-├── templates/      # Dashboard UI  
-├── utils/          # Logging utilities  
-└── main.py         # Entry point  
-
----
-
-## Installation
-
-git clone https://github.com/arman-0909/pulse.git  
-cd pulse  
-
-python -m venv env  
-env\Scripts\activate  
-
-pip install -r requirements.txt  
+### Production Ready
+- **PostgreSQL Support** — Switch from SQLite to PostgreSQL via env var
+- **Environment Variables** — All secrets in `.env`, nothing hardcoded
+- **CORS Middleware** — Ready for API consumers
+- **Structured Logging** — Timestamped logs for all operations
+- **REST API** — Full JSON API + Swagger docs at `/docs`
 
 ---
 
-## Run Locally
+## 📸 Screenshots
 
-uvicorn app.main:app --reload  
+### Login (Sign In / Sign Up)
+![Login](docs/login.png)
 
----
+### Admin Panel
+![Admin](docs/admin.png)
 
-## API Documentation
-
-http://127.0.0.1:8000/docs  
-
----
-
-## Dashboard
-
-http://127.0.0.1:8000/dashboard  
+### Dashboard (WebSocket Live)
+![Dashboard](docs/dashboard.png)
 
 ---
 
-## How It Works
+## 🛠️ Tech Stack
 
-1. Services are registered with their URLs  
-2. A background scheduler periodically checks each service  
-3. Metrics such as status and response time are stored  
-4. APIs expose analytics like uptime and failures  
-5. Dashboard displays current service state  
-
----
-
-## Deployment
-
-Deployed using Render (free tier)  
-
-Note: Free tier instances may sleep after inactivity.  
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | FastAPI + Python 3.11+ |
+| **Database** | SQLite (dev) / PostgreSQL (prod) via SQLModel |
+| **Real-time** | WebSocket (FastAPI native + websockets lib) |
+| **Auth** | bcrypt + JWT (python-jose) |
+| **Scheduler** | APScheduler (async) |
+| **HTTP Client** | HTTPX (async) |
+| **Config** | python-dotenv (.env files) |
+| **Icons** | Lucide Icons (CDN) |
+| **Font** | Inter (Google Fonts) |
 
 ---
 
-## Future Improvements
+## 📁 Project Structure
 
-- Alert system (email or messaging integration)  
-- Multi-user support  
-- PostgreSQL integration  
-- Advanced analytics and visualization  
+```
+PULSE/
+├── app/
+│   ├── main.py                # FastAPI app + lifespan + CORS
+│   ├── api/
+│   │   └── routes.py          # Pages + REST API + WebSocket + Auth
+│   ├── core/
+│   │   ├── config.py          # Reads from .env (no hardcoded secrets)
+│   │   ├── auth.py            # bcrypt hashing + JWT create/decode
+│   │   └── websocket.py       # WebSocket connection manager
+│   ├── db/
+│   │   ├── database.py        # Engine (SQLite or PostgreSQL)
+│   │   └── models.py          # User, Service, ServiceGroup, Metric
+│   ├── scheduler/
+│   │   └── jobs.py            # APScheduler health check jobs
+│   ├── services/
+│   │   └── monitor.py         # HTTP checker + WS broadcaster
+│   ├── templates/
+│   │   ├── index.html         # Home page
+│   │   ├── dashboard.html     # Live dashboard (WebSocket)
+│   │   ├── admin.html         # Admin (CRUD + modals)
+│   │   └── login.html         # Sign In / Sign Up
+│   └── utils/
+│       └── logger.py          # Structured logging
+├── .env                       # Local config (git-ignored)
+├── .env.example               # Template for new deployments
+├── .gitignore
+├── requirements.txt
+└── README.md
+```
 
 ---
 
-## License
+## ⚙️ Setup
 
-Creative Commons v1.0
+```bash
+# Clone
+git clone <repo-url> && cd PULSE
+
+# Virtual environment
+python -m venv env
+env\Scripts\activate         # Windows
+source env/bin/activate      # macOS/Linux
+
+# Install
+pip install -r requirements.txt
+
+# Configure
+cp .env.example .env         # Edit .env with your values
+
+# Run
+uvicorn app.main:app --reload
+```
+
+Open **http://127.0.0.1:8000** → Sign up → Start monitoring.
+
 ---
 
-## Author
+## 🔐 Environment Variables
 
-Arman  
+```env
+# Database (SQLite for dev, PostgreSQL for prod)
+DATABASE_URL=sqlite:///./pulse.db
+# DATABASE_URL=postgresql://user:pass@localhost:5432/pulse
+
+# Auth (CHANGE THESE IN PRODUCTION)
+SECRET_KEY=your-random-secret-key
+JWT_ALGORITHM=HS256
+JWT_EXPIRY_HOURS=24
+
+# Monitoring
+CHECK_INTERVAL=30
+REQUEST_TIMEOUT=5
+```
+
+---
+
+## 🌐 Routes
+
+| Route | Auth | Description |
+|-------|------|------------|
+| `/` | Public | Home page |
+| `/dashboard` | Public | Live dashboard (WebSocket) |
+| `/login` | Public | Sign In / Sign Up |
+| `/admin` | 🔒 JWT | Admin panel (CRUD) |
+| `/logout` | — | Clear session |
+| `/docs` | Public | Swagger API docs |
+| `/ws` | — | WebSocket endpoint |
+
+---
+
+## 📡 REST API
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/services` | All services + metrics |
+| `GET` | `/api/stats` | Global stats |
+| `GET` | `/api/services/{id}/metrics` | Metric history |
+| `GET` | `/api/groups` | All groups |
+| `DELETE` | `/api/services/{id}` | Delete service |
+| `WS` | `/ws` | Real-time metric stream |
+
+---
+
+## 📋 Requirements
+
+```
+fastapi, uvicorn, sqlmodel, httpx, jinja2, apscheduler,
+python-multipart, websockets, bcrypt, python-jose[cryptography],
+python-dotenv, psycopg2-binary
+```
+
+---
+
+## 📄 License
+
+MIT

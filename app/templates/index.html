@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pulse — API Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #06060a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+        * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent; }
+        body::before, body::after {
+            content: ''; position: fixed; border-radius: 50%;
+            filter: blur(120px); opacity: 0.12; z-index: 0;
+            animation: float 20s ease-in-out infinite;
+        }
+        body::before { width: 500px; height: 500px; background: #4caf50; top: -100px; left: -100px; }
+        body::after { width: 400px; height: 400px; background: #2196f3; bottom: -100px; right: -100px; animation-delay: -10s; }
+        @keyframes float {
+            0%, 100% { transform: translate(0,0) scale(1); }
+            33% { transform: translate(30px,-30px) scale(1.05); }
+            66% { transform: translate(-20px,20px) scale(0.95); }
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px 24px; position: relative; z-index: 1; }
+
+        /* NAV */
+        .nav {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 36px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px; padding: 10px 16px; backdrop-filter: blur(20px);
+        }
+        .nav-logo { font-weight: 700; font-size: 18px; color: #4caf50; margin-right: auto; display: flex; align-items: center; gap: 8px; }
+        .nav-logo .dot { width: 8px; height: 8px; background: #4caf50; border-radius: 50%; animation: pulse-dot 2s ease-in-out infinite; }
+        @keyframes pulse-dot { 0%,100% { box-shadow: 0 0 0 0 rgba(76,175,80,0.5); } 50% { box-shadow: 0 0 0 6px rgba(76,175,80,0); } }
+        .nav a { color: #777; text-decoration: none; font-size: 13px; font-weight: 500; padding: 7px 16px; border-radius: 8px; transition: all 0.25s; display: flex; align-items: center; gap: 6px; }
+        .nav a:hover { color: #ccc; background: rgba(255,255,255,0.05); }
+        .nav a.active { color: #fff; background: rgba(76,175,80,0.15); }
+        .nav a i { width: 14px; height: 14px; }
+
+        /* HERO */
+        .hero { text-align: center; padding: 50px 0 40px; animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .hero-icon {
+            width: 72px; height: 72px; border-radius: 20px;
+            background: rgba(76,175,80,0.1); border: 1px solid rgba(76,175,80,0.15);
+            display: inline-flex; align-items: center; justify-content: center;
+            margin-bottom: 24px; color: #4caf50;
+            animation: pulse-icon 3s ease-in-out infinite;
+        }
+        .hero-icon i { width: 32px; height: 32px; }
+        @keyframes pulse-icon {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(76,175,80,0.15); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 14px rgba(76,175,80,0); }
+        }
+        .hero h1 { font-size: 40px; font-weight: 800; color: #fff; margin-bottom: 12px; letter-spacing: -1px; line-height: 1.15; }
+        .hero h1 span { color: #4caf50; }
+        .hero p { color: #555; font-size: 15px; max-width: 460px; margin: 0 auto; line-height: 1.6; }
+
+        /* UPTIME BAR */
+        .uptime-bar-wrapper {
+            max-width: 400px; margin: 28px auto 0; animation: fadeIn 0.6s ease-out 0.1s backwards;
+        }
+        .uptime-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .uptime-label { font-size: 11px; color: #555; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .uptime-val { font-size: 11px; color: #4caf50; font-weight: 700; }
+        .uptime-track { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+        .uptime-fill {
+            height: 100%; border-radius: 3px;
+            background: linear-gradient(90deg, #4caf50, #66bb6a);
+            transition: width 1s ease-out;
+        }
+
+        /* STATS */
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 36px 0; animation: fadeIn 0.6s ease-out 0.15s backwards; }
+        .stat-box {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px; padding: 22px; text-align: center;
+            backdrop-filter: blur(20px); transition: all 0.3s;
+        }
+        .stat-box:hover { border-color: rgba(255,255,255,0.12); transform: translateY(-3px); }
+        .stat-box-icon { margin-bottom: 10px; color: #444; }
+        .stat-box-icon i { width: 20px; height: 20px; }
+        .stat-num { font-size: 32px; font-weight: 700; line-height: 1; }
+        .stat-num.green { color: #4caf50; }
+        .stat-num.red { color: #f44336; }
+        .stat-num.blue { color: #2196f3; }
+        .stat-desc { font-size: 12px; color: #444; margin-top: 6px; font-weight: 500; }
+
+        /* FEATURES */
+        .features-title { text-align: center; font-size: 12px; color: #333; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 16px; }
+        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; animation: fadeIn 0.6s ease-out 0.3s backwards; }
+        .feature-card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px; padding: 28px 24px; backdrop-filter: blur(20px);
+            transition: all 0.3s; text-decoration: none; color: inherit; display: block;
+        }
+        .feature-card:hover { border-color: rgba(76,175,80,0.25); transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        .feature-icon {
+            width: 40px; height: 40px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 16px;
+        }
+        .feature-icon i { width: 20px; height: 20px; }
+        .feature-icon.green { background: rgba(76,175,80,0.1); color: #4caf50; }
+        .feature-icon.blue { background: rgba(33,150,243,0.1); color: #2196f3; }
+        .feature-icon.purple { background: rgba(156,39,176,0.1); color: #ce93d8; }
+        .feature-card h3 { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+        .feature-card p { font-size: 12px; color: #444; line-height: 1.6; }
+        .feature-arrow { display: inline-flex; align-items: center; gap: 4px; margin-top: 14px; font-size: 12px; color: #4caf50; font-weight: 600; }
+        .feature-arrow i { width: 14px; height: 14px; }
+
+        @media (max-width: 768px) {
+            .stats-row, .features-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 28px; }
+            .hero { padding: 30px 0 20px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <nav class="nav">
+        <div class="nav-logo"><div class="dot"></div> PULSE</div>
+        <a href="/" class="active"><i data-lucide="home"></i> Home</a>
+        <a href="/dashboard"><i data-lucide="activity"></i> Dashboard</a>
+        <a href="/admin"><i data-lucide="settings"></i> Admin</a>
+        {% if logged_in %}
+        <a href="/logout" style="color:#f44336;"><i data-lucide="log-out"></i> Logout</a>
+        {% else %}
+        <a href="/login"><i data-lucide="log-in"></i> Login</a>
+        {% endif %}
+    </nav>
+
+    <div class="hero">
+        <div class="hero-icon"><i data-lucide="zap"></i></div>
+        <h1>API <span>Monitoring</span><br>Made Simple</h1>
+        <p>Track uptime, response times, and health of all your APIs and services in real-time.</p>
+
+        {% if total > 0 %}
+        <div class="uptime-bar-wrapper">
+            <div class="uptime-top">
+                <span class="uptime-label">Overall Uptime</span>
+                <span class="uptime-val">{{ uptime_pct }}%</span>
+            </div>
+            <div class="uptime-track">
+                <div class="uptime-fill" style="width: {{ uptime_pct }}%"></div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-box-icon"><i data-lucide="server"></i></div>
+            <div class="stat-num green">{{ total }}</div>
+            <div class="stat-desc">Services Monitored</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-box-icon"><i data-lucide="wifi"></i></div>
+            <div class="stat-num {% if offline > 0 %}red{% else %}green{% endif %}">{{ online }}/{{ total }}</div>
+            <div class="stat-desc">Currently Online</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-box-icon"><i data-lucide="timer"></i></div>
+            <div class="stat-num blue">{{ avg_response }}ms</div>
+            <div class="stat-desc">Avg Response Time</div>
+        </div>
+    </div>
+
+    <div class="features-title">Quick Access</div>
+    <div class="features-grid">
+        <a href="/dashboard" class="feature-card">
+            <div class="feature-icon green"><i data-lucide="bar-chart-3"></i></div>
+            <h3>Live Dashboard</h3>
+            <p>Real-time status cards, uptime charts, and response time sparklines for every service.</p>
+            <span class="feature-arrow"><i data-lucide="arrow-right"></i> Open Dashboard</span>
+        </a>
+        <a href="/admin" class="feature-card">
+            <div class="feature-icon blue"><i data-lucide="shield-check"></i></div>
+            <h3>Admin Panel</h3>
+            <p>Add, remove, and organize your monitored services with groups and categories.</p>
+            <span class="feature-arrow"><i data-lucide="arrow-right"></i> Manage Services</span>
+        </a>
+        <a href="/docs" class="feature-card">
+            <div class="feature-icon purple"><i data-lucide="code-2"></i></div>
+            <h3>REST API</h3>
+            <p>Programmatic access to services, metrics, and stats via the documented JSON API.</p>
+            <span class="feature-arrow"><i data-lucide="arrow-right"></i> View API Docs</span>
+        </a>
+    </div>
+
+</div>
+<script>lucide.createIcons();</script>
+</body>
+</html>

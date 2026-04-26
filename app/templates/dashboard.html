@@ -1,75 +1,347 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Pulse Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Pulse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: Arial, sans-serif;
-            background: #111;
-            color: #eee;
-            margin: 40px;
+            font-family: 'Inter', sans-serif;
+            background: #06060a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
-
-        h1 {
-            margin-bottom: 20px;
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+        * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent; }
+        body::before, body::after {
+            content: ''; position: fixed; border-radius: 50%;
+            filter: blur(120px); opacity: 0.12; z-index: 0;
+            animation: float 20s ease-in-out infinite;
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #1a1a1a;
+        body::before { width: 500px; height: 500px; background: #4caf50; top: -100px; left: -100px; }
+        body::after { width: 400px; height: 400px; background: #2196f3; bottom: -100px; right: -100px; animation-delay: -10s; }
+        @keyframes float {
+            0%, 100% { transform: translate(0,0) scale(1); }
+            33% { transform: translate(30px,-30px) scale(1.05); }
+            66% { transform: translate(-20px,20px) scale(0.95); }
         }
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px 24px; position: relative; z-index: 1; }
 
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #333;
+        /* NAV */
+        .nav {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 36px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px; padding: 10px 16px; backdrop-filter: blur(20px);
         }
+        .nav-logo { font-weight: 700; font-size: 18px; color: #4caf50; margin-right: auto; display: flex; align-items: center; gap: 8px; }
+        .nav-logo .dot { width: 8px; height: 8px; background: #4caf50; border-radius: 50%; animation: pulse-dot 2s ease-in-out infinite; }
+        @keyframes pulse-dot { 0%,100% { box-shadow: 0 0 0 0 rgba(76,175,80,0.5); } 50% { box-shadow: 0 0 0 6px rgba(76,175,80,0); } }
+        .nav a { color: #777; text-decoration: none; font-size: 13px; font-weight: 500; padding: 7px 16px; border-radius: 8px; transition: all 0.25s; display: flex; align-items: center; gap: 6px; }
+        .nav a:hover { color: #ccc; background: rgba(255,255,255,0.05); }
+        .nav a.active { color: #fff; background: rgba(76,175,80,0.15); }
+        .nav a i { width: 14px; height: 14px; }
 
-        th {
-            background: #222;
+        .page-header { margin-bottom: 28px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .page-header div {}
+        .page-header h1 { font-size: 26px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .page-header h1 i { color: #4caf50; }
+        .page-header p { color: #666; font-size: 14px; margin-top: 4px; }
+        .refresh-note { font-size: 11px; color: #333; display: flex; align-items: center; gap: 4px; }
+        .refresh-note i { width: 12px; height: 12px; animation: spin 2s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* STAT CARDS */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+        .stat-card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px; padding: 20px; backdrop-filter: blur(20px); transition: all 0.3s;
         }
+        .stat-card:hover { border-color: rgba(255,255,255,0.12); transform: translateY(-2px); }
+        .stat-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .stat-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+        .stat-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .stat-icon i { width: 16px; height: 16px; }
+        .stat-icon.green { background: rgba(76,175,80,0.1); color: #4caf50; }
+        .stat-icon.red { background: rgba(244,67,54,0.1); color: #f44336; }
+        .stat-icon.blue { background: rgba(33,150,243,0.1); color: #2196f3; }
+        .stat-icon.purple { background: rgba(156,39,176,0.1); color: #ce93d8; }
+        .stat-value { font-size: 30px; font-weight: 700; color: #fff; line-height: 1; }
+        .stat-value.green { color: #4caf50; }
+        .stat-value.red { color: #f44336; }
+        .stat-value.blue { color: #2196f3; }
 
-        tr:hover {
-            background: #2a2a2a;
+        /* SERVICE CARDS */
+        .services-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .services-header h2 { font-size: 15px; font-weight: 600; color: #888; display: flex; align-items: center; gap: 6px; }
+        .services-header h2 i { width: 16px; height: 16px; }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+
+        .service-card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px; padding: 22px; backdrop-filter: blur(20px);
+            transition: all 0.3s; animation: fadeInUp 0.4s ease-out backwards;
         }
+        .service-card:nth-child(1) { animation-delay: 0.05s; }
+        .service-card:nth-child(2) { animation-delay: 0.1s; }
+        .service-card:nth-child(3) { animation-delay: 0.15s; }
+        .service-card:nth-child(4) { animation-delay: 0.2s; }
+        .service-card:nth-child(5) { animation-delay: 0.25s; }
+        .service-card:nth-child(6) { animation-delay: 0.3s; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        .service-card:hover { border-color: rgba(255,255,255,0.12); transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        .service-card.down { border-color: rgba(244,67,54,0.15); }
 
-        .up {
-            color: #4caf50;
+        .service-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+        .service-name { font-weight: 600; font-size: 15px; color: #fff; }
+        .service-url { font-size: 11px; color: #444; margin-top: 3px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .service-group-tag { font-size: 10px; color: #2196f3; background: rgba(33,150,243,0.08); padding: 2px 7px; border-radius: 5px; margin-top: 4px; display: inline-block; }
+
+        .status-badge {
+            display: flex; align-items: center; gap: 5px;
+            font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+            padding: 4px 10px 4px 8px; border-radius: 20px;
         }
+        .status-badge.up { color: #4caf50; background: rgba(76,175,80,0.1); }
+        .status-badge.down { color: #f44336; background: rgba(244,67,54,0.1); }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .status-dot.up { background: #4caf50; animation: pulse-dot 2s ease-in-out infinite; }
+        .status-dot.down { background: #f44336; }
 
-        .down {
-            color: #f44336;
+        .service-metrics { display: flex; gap: 20px; margin-bottom: 14px; }
+        .metric-item { flex: 1; }
+        .metric-label { font-size: 10px; color: #444; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
+        .metric-val { font-size: 18px; font-weight: 700; color: #fff; }
+        .metric-val.green { color: #4caf50; }
+
+        .sparkline-container { height: 40px; margin-top: 4px; }
+        .sparkline-container svg { width: 100%; height: 100%; }
+
+        .service-footer {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.04);
+        }
+        .last-checked { font-size: 10px; color: #333; display: flex; align-items: center; gap: 4px; }
+        .last-checked i { width: 11px; height: 11px; }
+        .checks-count { font-size: 10px; color: #333; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: #444; }
+        .empty-state i { color: #333; margin-bottom: 12px; }
+        .empty-state h3 { font-size: 16px; color: #555; margin-bottom: 6px; }
+        .empty-state a { color: #4caf50; text-decoration: none; }
+
+        @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .services-grid { grid-template-columns: 1fr; }
+            .container { padding: 20px 16px; }
         }
     </style>
 </head>
 <body>
+<div class="container">
 
-<h1>Pulse Dashboard</h1>
+    <nav class="nav">
+        <div class="nav-logo"><div class="dot"></div> PULSE</div>
+        <a href="/"><i data-lucide="home"></i> Home</a>
+        <a href="/dashboard" class="active"><i data-lucide="activity"></i> Dashboard</a>
+        <a href="/admin"><i data-lucide="settings"></i> Admin</a>
+        {% if logged_in %}
+        <a href="/logout" style="color:#f44336;"><i data-lucide="log-out"></i> Logout</a>
+        {% else %}
+        <a href="/login"><i data-lucide="log-in"></i> Login</a>
+        {% endif %}
+    </nav>
 
-<table>
-    <tr>
-        <th>Name</th>
-        <th>URL</th>
-        <th>Status</th>
-        <th>Uptime</th>
-    </tr>
+    <div class="page-header">
+        <div>
+            <h1><i data-lucide="bar-chart-3"></i> Dashboard</h1>
+            <p>Real-time health monitoring for your services</p>
+        </div>
+        <div class="refresh-note" id="wsStatus"><i data-lucide="loader-2"></i> Connecting...</div>
+    </div>
 
-    {% for s in services %}
-    <tr>
-        <td>{{ s.name }}</td>
-        <td>{{ s.url }}</td>
-        <td class="{{ s.status }}">{{ s.status }}</td>
-        <td>{{ s.uptime }}%</td>
-    </tr>
-    {% endfor %}
-</table>
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-label">Total Services</div>
+                <div class="stat-icon purple"><i data-lucide="server"></i></div>
+            </div>
+            <div class="stat-value">{{ total }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-label">Online</div>
+                <div class="stat-icon green"><i data-lucide="check-circle"></i></div>
+            </div>
+            <div class="stat-value green">{{ online }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-label">Offline</div>
+                <div class="stat-icon red"><i data-lucide="alert-circle"></i></div>
+            </div>
+            <div class="stat-value red">{{ offline }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-label">Avg Response</div>
+                <div class="stat-icon blue"><i data-lucide="timer"></i></div>
+            </div>
+            <div class="stat-value blue">{{ avg_response }}<span style="font-size:13px;color:#555;font-weight:400">ms</span></div>
+        </div>
+    </div>
+
+    <!-- Services -->
+    <div class="services-header">
+        <h2><i data-lucide="layout-grid"></i> Services</h2>
+    </div>
+
+    {% if services %}
+    <div class="services-grid">
+        {% for s in services %}
+        <div class="service-card {{ s.status }}">
+            <div class="service-top">
+                <div>
+                    <div class="service-name">{{ s.name }}</div>
+                    <div class="service-url" title="{{ s.url }}">{{ s.url }}</div>
+                    {% if s.group %}<div class="service-group-tag">{{ s.group }}</div>{% endif %}
+                </div>
+                <div class="status-badge {{ s.status }}">
+                    <div class="status-dot {{ s.status }}"></div>
+                    {{ s.status }}
+                </div>
+            </div>
+
+            <div class="service-metrics">
+                <div class="metric-item">
+                    <div class="metric-label">Uptime</div>
+                    <div class="metric-val green">{{ s.uptime }}%</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-label">Response</div>
+                    <div class="metric-val">{{ s.response_time }}ms</div>
+                </div>
+            </div>
+
+            <div class="sparkline-container" id="spark-{{ s.id }}"></div>
+
+            <div class="service-footer">
+                <div class="last-checked"><i data-lucide="clock"></i> {{ s.last_checked }}</div>
+                <div class="checks-count">{{ s.total_checks }} checks</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i data-lucide="radio-tower" style="width:40px;height:40px;display:block;margin:0 auto 12px;"></i>
+        <h3>No services monitored yet</h3>
+        <p><a href="/admin">Add your first service</a> to get started</p>
+    </div>
+    {% endif %}
+</div>
 
 <script>
-setInterval(() => {
-    window.location.reload();
-}, 5000); // refresh every 5 sec
-</script>
+lucide.createIcons();
 
+function drawSparkline(containerId, data, isUp) {
+    const container = document.getElementById(containerId);
+    if (!container || !data.length) return;
+    const w = container.offsetWidth;
+    const h = 40;
+    const max = Math.max(...data, 1);
+    const step = w / (data.length - 1 || 1);
+    const points = data.map((v, i) => `${i * step},${h - (v / max) * (h - 4) - 2}`).join(' ');
+    const fillPoints = `0,${h} ${points} ${(data.length - 1) * step},${h}`;
+    const color = isUp ? '#4caf50' : '#f44336';
+    container.innerHTML = `
+        <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+            <defs><linearGradient id="g-${containerId}" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="${color}" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+            </linearGradient></defs>
+            <polygon points="${fillPoints}" fill="url(#g-${containerId})"/>
+            <polyline points="${points}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`;
+}
+
+const sparkData = {{ services | tojson }};
+sparkData.forEach(s => drawSparkline('spark-' + s.id, s.sparkline, s.status === 'up'));
+
+// WebSocket real-time updates
+const wsStatus = document.getElementById('wsStatus');
+let ws;
+function connectWS() {
+    const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    ws = new WebSocket(protocol + '//' + location.host + '/ws');
+
+    ws.onopen = () => {
+        wsStatus.innerHTML = '<i data-lucide="radio"></i> Live';
+        wsStatus.style.color = '#4caf50';
+        lucide.createIcons();
+    };
+
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'metric') updateCard(data);
+    };
+
+    ws.onclose = () => {
+        wsStatus.innerHTML = '<i data-lucide="loader-2"></i> Reconnecting...';
+        wsStatus.style.color = '#f44336';
+        lucide.createIcons();
+        setTimeout(connectWS, 3000);
+    };
+}
+connectWS();
+
+function updateCard(data) {
+    // Find all service cards and update matching one
+    const cards = document.querySelectorAll('.service-card');
+    cards.forEach(card => {
+        const nameEl = card.querySelector('.service-name');
+        if (!nameEl || nameEl.textContent !== data.name) return;
+
+        // Update status badge
+        const badge = card.querySelector('.status-badge');
+        if (badge) {
+            badge.className = 'status-badge ' + data.status;
+            badge.innerHTML = '<div class="status-dot ' + data.status + '"></div>' + data.status;
+        }
+
+        // Update response time
+        const metricVals = card.querySelectorAll('.metric-val');
+        if (metricVals[1]) metricVals[1].textContent = data.response_time + 'ms';
+
+        // Update last checked
+        const footer = card.querySelector('.last-checked');
+        if (footer) footer.innerHTML = '<i data-lucide="clock"></i> ' + data.checked_at;
+
+        // Update card border for down status
+        card.classList.toggle('down', data.status === 'down');
+
+        lucide.createIcons();
+    });
+
+    // Flash effect
+    const flash = document.createElement('div');
+    flash.style.cssText = 'position:fixed;top:0;left:0;right:0;height:2px;background:' + (data.status === 'up' ? '#4caf50' : '#f44336') + ';z-index:9999;animation:flashBar 1s ease-out forwards;';
+    document.body.appendChild(flash);
+    setTimeout(() => flash.remove(), 1000);
+}
+
+// Flash bar animation
+const style = document.createElement('style');
+style.textContent = '@keyframes flashBar { from { opacity: 1; } to { opacity: 0; } }';
+document.head.appendChild(style);
+</script>
 </body>
 </html>
