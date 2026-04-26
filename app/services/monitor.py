@@ -27,43 +27,40 @@ async def check_service(service):
             )
 
         response_time = round((time.time() - start_time) * 1000, 2)
-        success = response.status_code < 500
-
-        metric = Metric(
-            service_id=service.id,
-            status_code=response.status_code,
-            response_time=response_time,
-            success=success,
-            checked_at=datetime.utcnow()
-        )
+        status_code = response.status_code
+        success = status_code < 500
 
     except Exception as e:
         logger.error(f"{service.url} -> {e}")
+        response_time = 0.0
+        status_code = 0
+        success = False
 
-        metric = Metric(
-            service_id=service.id,
-            status_code=0,
-            response_time=0.0,
-            success=False,
-            checked_at=datetime.utcnow()
-        )
+    checked_at = datetime.utcnow()
 
-    # save to DB
+    # Save to DB
+    metric = Metric(
+        service_id=service.id,
+        status_code=status_code,
+        response_time=response_time,
+        success=success,
+        checked_at=checked_at
+    )
     with Session(engine) as session:
         session.add(metric)
         session.commit()
 
-    # broadcast to WebSocket clients
+    # Broadcast to WebSocket clients (use plain values, not ORM objects)
     try:
         await manager.broadcast({
             "type": "metric",
             "service_id": service.id,
             "name": service.name,
             "url": service.url,
-            "status": "up" if metric.success else "down",
-            "status_code": metric.status_code,
-            "response_time": metric.response_time,
-            "checked_at": metric.checked_at.strftime("%H:%M:%S")
+            "status": "up" if success else "down",
+            "status_code": status_code,
+            "response_time": response_time,
+            "checked_at": checked_at.strftime("%H:%M:%S")
         })
     except Exception as e:
         logger.error(f"Broadcast failed: {e}")

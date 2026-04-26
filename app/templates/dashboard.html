@@ -276,9 +276,10 @@ function drawSparkline(containerId, data, isUp) {
 const sparkData = {{ services | tojson }};
 sparkData.forEach(s => drawSparkline('spark-' + s.id, s.sparkline, s.status === 'up'));
 
-// WebSocket real-time updates
+// ===== REAL-TIME ENGINE =====
 const wsStatus = document.getElementById('wsStatus');
-let ws;
+let ws, refreshTimer;
+
 function connectWS() {
     const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
     ws = new WebSocket(protocol + '//' + location.host + '/ws');
@@ -287,55 +288,94 @@ function connectWS() {
         wsStatus.innerHTML = '<i data-lucide="radio"></i> Live';
         wsStatus.style.color = '#4caf50';
         lucide.createIcons();
+        // Clear fallback polling when WS is connected
+        if (refreshTimer) clearInterval(refreshTimer);
     };
 
-    ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === 'metric') updateCard(data);
+    ws.onmessage = () => {
+        // Any message = new metric arrived, refetch everything
+        refreshDashboard();
     };
 
     ws.onclose = () => {
         wsStatus.innerHTML = '<i data-lucide="loader-2"></i> Reconnecting...';
         wsStatus.style.color = '#f44336';
         lucide.createIcons();
+        // Start fallback polling
+        if (!refreshTimer) refreshTimer = setInterval(refreshDashboard, 15000);
         setTimeout(connectWS, 3000);
     };
 }
 connectWS();
 
-function updateCard(data) {
-    // Find all service cards and update matching one
-    const cards = document.querySelectorAll('.service-card');
-    cards.forEach(card => {
-        const nameEl = card.querySelector('.service-name');
-        if (!nameEl || nameEl.textContent !== data.name) return;
+// Fallback polling (runs until WS connects)
+refreshTimer = setInterval(refreshDashboard, 15000);
 
-        // Update status badge
-        const badge = card.querySelector('.status-badge');
-        if (badge) {
-            badge.className = 'status-badge ' + data.status;
-            badge.innerHTML = '<div class="status-dot ' + data.status + '"></div>' + data.status;
-        }
+async function refreshDashboard() {
+    try {
+        const [servicesRes, statsRes] = await Promise.all([
+            fetch('/api/services'), fetch('/api/stats')
+        ]);
+        const services = await servicesRes.json();
+        const stats = await statsRes.json();
 
-        // Update response time
-        const metricVals = card.querySelectorAll('.metric-val');
-        if (metricVals[1]) metricVals[1].textContent = data.response_time + 'ms';
+        // Update stat cards
+        const statVals = document.querySelectorAll('.stat-value');
+        if (statVals[0]) statVals[0].textContent = stats.total;
+        if (statVals[1]) statVals[1].textContent = stats.online;
+        if (statVals[2]) statVals[2].textContent = stats.offline;
+        if (statVals[3]) statVals[3].innerHTML = stats.avg_response + '<span style="font-size:13px;color:#555;font-weight:400">ms</span>';
 
-        // Update last checked
-        const footer = card.querySelector('.last-checked');
-        if (footer) footer.innerHTML = '<i data-lucide="clock"></i> ' + data.checked_at;
+        // Update service cards
+        const grid = document.querySelector('.services-grid');
+        if (!grid) return;
 
-        // Update card border for down status
-        card.classList.toggle('down', data.status === 'down');
+        services.forEach(s => {
+            const cards = grid.querySelectorAll('.service-card');
+            let card = null;
+            cards.forEach(c => {
+                const n = c.querySelector('.service-name');
+                if (n && n.textContent === s.name) card = c;
+            });
+            if (!card) return;
+
+            // Status badge
+            const badge = card.querySelector('.status-badge');
+            if (badge) {
+                badge.className = 'status-badge ' + s.status;
+                badge.innerHTML = '<div class="status-dot ' + s.status + '"></div>' + s.status.toUpperCase();
+            }
+
+            // Card class
+            card.className = 'service-card ' + s.status;
+
+            // Metrics
+            const vals = card.querySelectorAll('.metric-val');
+            if (vals[0]) vals[0].textContent = s.uptime + '%';
+            if (vals[1]) vals[1].textContent = s.response_time + 'ms';
+
+            // Last checked
+            const footer = card.querySelector('.last-checked');
+            if (footer && s.last_checked) {
+                const t = s.last_checked.includes('T') ? s.last_checked.split('T')[1].split('.')[0] : s.last_checked;
+                footer.innerHTML = '<i data-lucide="clock"></i> ' + t;
+            }
+
+            // Sparkline
+            drawSparkline('spark-' + s.id, s.sparkline, s.status === 'up');
+        });
 
         lucide.createIcons();
-    });
 
-    // Flash effect
-    const flash = document.createElement('div');
-    flash.style.cssText = 'position:fixed;top:0;left:0;right:0;height:2px;background:' + (data.status === 'up' ? '#4caf50' : '#f44336') + ';z-index:9999;animation:flashBar 1s ease-out forwards;';
-    document.body.appendChild(flash);
-    setTimeout(() => flash.remove(), 1000);
+        // Flash bar
+        const flash = document.createElement('div');
+        flash.style.cssText = 'position:fixed;top:0;left:0;right:0;height:2px;background:#4caf50;z-index:9999;animation:flashBar 1s ease-out forwards;';
+        document.body.appendChild(flash);
+        setTimeout(() => flash.remove(), 1000);
+
+    } catch (e) {
+        console.error('Dashboard refresh failed:', e);
+    }
 }
 
 // Flash bar animation
