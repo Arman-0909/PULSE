@@ -1,245 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Admin — Pulse</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #06060a;
-            color: #e0e0e0;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
-        * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent; }
-
-        body::before, body::after {
-            content: ''; position: fixed; border-radius: 50%;
-            filter: blur(120px); opacity: 0.12; z-index: 0;
-            animation: float 20s ease-in-out infinite;
-        }
-        body::before { width: 500px; height: 500px; background: #4caf50; top: -100px; left: -100px; }
-        body::after { width: 400px; height: 400px; background: #2196f3; bottom: -100px; right: -100px; animation-delay: -10s; }
-        @keyframes float {
-            0%, 100% { transform: translate(0,0) scale(1); }
-            33% { transform: translate(30px,-30px) scale(1.05); }
-            66% { transform: translate(-20px,20px) scale(0.95); }
-        }
-        .container { max-width: 1200px; margin: 0 auto; padding: 30px 24px; position: relative; z-index: 1; }
-
-        /* NAV */
-        .nav {
-            display: flex; align-items: center; gap: 8px; margin-bottom: 36px;
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 14px; padding: 10px 16px; backdrop-filter: blur(20px);
-        }
-        .nav-logo { font-weight: 700; font-size: 18px; color: #4caf50; margin-right: auto; display: flex; align-items: center; gap: 8px; }
-        .nav-logo .dot { width: 8px; height: 8px; background: #4caf50; border-radius: 50%; animation: pulse-dot 2s ease-in-out infinite; }
-        @keyframes pulse-dot { 0%,100% { box-shadow: 0 0 0 0 rgba(76,175,80,0.5); } 50% { box-shadow: 0 0 0 6px rgba(76,175,80,0); } }
-        .nav a { color: #777; text-decoration: none; font-size: 13px; font-weight: 500; padding: 7px 16px; border-radius: 8px; transition: all 0.25s; display: flex; align-items: center; gap: 6px; }
-        .nav a:hover { color: #ccc; background: rgba(255,255,255,0.05); }
-        .nav a.active { color: #fff; background: rgba(76,175,80,0.15); }
-        .nav a i { width: 14px; height: 14px; }
-
-        .page-header { margin-bottom: 28px; }
-        .page-header h1 { font-size: 26px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
-        .page-header h1 i { color: #4caf50; }
-        .page-header p { color: #666; font-size: 14px; margin-top: 4px; }
-
-        /* GRID */
-        .admin-grid { display: grid; grid-template-columns: 380px 1fr; gap: 24px; align-items: flex-start; }
-
-        /* GLASS CARD */
-        .glass-card {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 14px; padding: 24px; backdrop-filter: blur(20px);
-        }
-        .card-title { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-        .card-title i { color: #4caf50; width: 18px; height: 18px; }
-        .card-title.blue i { color: #2196f3; }
-
-        /* FORM */
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 11px; color: #555; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; }
-
-        input {
-            width: 100%; padding: 11px 14px; border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04);
-            color: #eee; font-size: 13px; font-family: 'Inter', sans-serif; transition: all 0.25s;
-        }
-        input:focus { outline: none; border-color: rgba(76,175,80,0.5); box-shadow: 0 0 0 3px rgba(76,175,80,0.08); }
-        input::placeholder { color: #3a3a3a; }
-
-        /* Custom dropdown */
-        .custom-select { position: relative; width: 100%; }
-        .custom-select-trigger {
-            width: 100%; padding: 11px 36px 11px 14px; border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04);
-            color: #eee; font-size: 13px; font-family: 'Inter', sans-serif;
-            cursor: pointer; transition: all 0.25s; position: relative;
-            user-select: none;
-        }
-        .custom-select-trigger::after {
-            content: ''; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-            width: 0; height: 0;
-            border-left: 4px solid transparent; border-right: 4px solid transparent;
-            border-top: 5px solid #555; transition: transform 0.2s;
-        }
-        .custom-select.open .custom-select-trigger { border-color: rgba(76,175,80,0.5); box-shadow: 0 0 0 3px rgba(76,175,80,0.08); }
-        .custom-select.open .custom-select-trigger::after { transform: translateY(-50%) rotate(180deg); }
-        .custom-select-options {
-            position: absolute; top: calc(100% + 4px); left: 0; right: 0;
-            background: #141418; border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px; overflow: hidden; z-index: 100;
-            max-height: 180px; overflow-y: auto;
-            opacity: 0; transform: translateY(-4px); pointer-events: none;
-            transition: all 0.2s ease;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-        }
-        .custom-select.open .custom-select-options { opacity: 1; transform: translateY(0); pointer-events: auto; }
-        .custom-select-option {
-            padding: 10px 14px; font-size: 13px; color: #aaa; cursor: pointer;
-            transition: all 0.15s; border-bottom: 1px solid rgba(255,255,255,0.04);
-        }
-        .custom-select-option:last-child { border-bottom: none; }
-        .custom-select-option:hover { background: rgba(255,255,255,0.06); color: #fff; }
-        .custom-select-option.selected { color: #4caf50; background: rgba(76,175,80,0.08); }
-        .custom-select-options::-webkit-scrollbar { width: 4px; }
-        .custom-select-options::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-
-        /* BUTTONS */
-        .btn {
-            padding: 11px 18px; border-radius: 10px; border: none;
-            font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif;
-            cursor: pointer; transition: all 0.25s;
-            display: inline-flex; align-items: center; gap: 7px; justify-content: center;
-        }
-        .btn i { width: 15px; height: 15px; }
-        .btn-primary {
-            background: #4caf50;
-            color: #fff; width: 100%;
-        }
-        .btn-primary:hover { background: #43a047; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(76,175,80,0.25); }
-        .btn-primary:active { transform: translateY(0); }
-        .btn-secondary {
-            background: rgba(255,255,255,0.05); color: #999;
-            width: 100%; margin-top: 8px; border: 1px solid rgba(255,255,255,0.06);
-        }
-        .btn-secondary:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.1); }
-        .btn-icon-sm {
-            background: transparent; color: #555; padding: 6px 10px; font-size: 12px;
-            border: 1px solid rgba(255,255,255,0.06); border-radius: 8px;
-            cursor: pointer; transition: all 0.25s; font-family: 'Inter', sans-serif;
-        }
-        .btn-icon-sm i { width: 14px; height: 14px; }
-        .btn-icon-sm:hover { color: #2196f3; border-color: rgba(33,150,243,0.3); background: rgba(33,150,243,0.08); }
-        .btn-icon-sm.danger:hover { color: #f44336; border-color: rgba(244,67,54,0.3); background: rgba(244,67,54,0.08); }
-        .btn-danger-sm {
-            background: transparent; color: #555; padding: 6px 10px; font-size: 12px;
-            border: 1px solid rgba(255,255,255,0.06); border-radius: 8px;
-            cursor: pointer; transition: all 0.25s; font-family: 'Inter', sans-serif;
-        }
-        .btn-danger-sm:hover { color: #f44336; border-color: rgba(244,67,54,0.3); background: rgba(244,67,54,0.08); }
-
-        .divider { border: none; border-top: 1px solid rgba(255,255,255,0.05); margin: 24px 0; }
-
-        /* SERVICES LIST */
-        .services-list { display: flex; flex-direction: column; gap: 6px; max-height: 520px; overflow-y: auto; padding-right: 4px; }
-        .service-row {
-            display: flex; align-items: center; gap: 12px;
-            padding: 12px 14px; background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.04); border-radius: 10px;
-            transition: all 0.25s; animation: fadeInUp 0.3s ease-out backwards;
-        }
-        .service-row:nth-child(1) { animation-delay: 0.02s; }
-        .service-row:nth-child(2) { animation-delay: 0.04s; }
-        .service-row:nth-child(3) { animation-delay: 0.06s; }
-        .service-row:nth-child(4) { animation-delay: 0.08s; }
-        .service-row:nth-child(5) { animation-delay: 0.1s; }
-        .service-row:nth-child(6) { animation-delay: 0.12s; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        .service-row:hover { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); }
-
-        .svc-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-        .svc-status.up { background: #4caf50; box-shadow: 0 0 6px rgba(76,175,80,0.5); }
-        .svc-status.down { background: #f44336; box-shadow: 0 0 6px rgba(244,67,54,0.5); }
-        .svc-status.pending { background: #666; }
-        .svc-info { flex: 1; min-width: 0; }
-        .svc-name { font-size: 13px; font-weight: 600; color: #fff; }
-        .svc-url { font-size: 11px; color: #444; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
-        .svc-meta { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-        .svc-group-badge {
-            font-size: 10px; color: #2196f3; background: rgba(33,150,243,0.08);
-            padding: 3px 8px; border-radius: 6px; font-weight: 500; white-space: nowrap;
-        }
-
-        .empty-state { text-align: center; padding: 40px 20px; color: #444; }
-        .empty-state i { color: #333; margin-bottom: 12px; }
-        .empty-state p { font-size: 13px; margin-top: 6px; }
-
-        /* TOAST */
-        .toast {
-            position: fixed; bottom: 30px; right: 30px;
-            padding: 14px 20px; border-radius: 12px; font-size: 13px; font-weight: 500;
-            z-index: 9999; transform: translateY(100px); opacity: 0;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            display: flex; align-items: center; gap: 8px;
-            backdrop-filter: blur(20px); max-width: 400px;
-        }
-        .toast i { width: 16px; height: 16px; flex-shrink: 0; }
-        .toast.show { transform: translateY(0); opacity: 1; }
-        .toast.success { background: rgba(76,175,80,0.12); border: 1px solid rgba(76,175,80,0.25); color: #4caf50; }
-        .toast.error { background: rgba(244,67,54,0.12); border: 1px solid rgba(244,67,54,0.25); color: #f44336; }
-
-        /* DELETE MODAL */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(6px); z-index: 1000;
-            display: none; align-items: center; justify-content: center;
-        }
-        .modal-overlay.show { display: flex; }
-        .modal {
-            background: #141418; border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px; padding: 32px; max-width: 380px; width: 90%;
-            text-align: center; animation: fadeInUp 0.25s ease-out;
-        }
-        .modal-icon { margin-bottom: 16px; color: #f44336; }
-        .modal-icon i { width: 36px; height: 36px; }
-        .modal h3 { font-size: 17px; color: #fff; margin-bottom: 8px; }
-        .modal p { font-size: 13px; color: #666; margin-bottom: 24px; line-height: 1.5; }
-        .modal p strong { color: #fff; }
-        .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn-cancel {
-            padding: 11px 0; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);
-            background: rgba(255,255,255,0.04); color: #aaa;
-            font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif;
-            cursor: pointer; transition: all 0.25s;
-        }
-        .btn-cancel:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.12); }
-        .btn-delete {
-            padding: 11px 0; border-radius: 10px; border: none;
-            background: #f44336; color: #fff;
-            font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif;
-            cursor: pointer; transition: all 0.25s; width: 100%;
-        }
-        .btn-delete:hover { background: #e53935; box-shadow: 0 4px 16px rgba(244,67,54,0.3); }
-
+        .admin-grid { display: grid; grid-template-columns: 340px 1fr; gap: 16px; align-items: start; }
         @media (max-width: 768px) { .admin-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-<div class="container">
-
     <nav class="nav">
         <div class="nav-logo"><div class="dot"></div> PULSE</div>
         <a href="/"><i data-lucide="home"></i> Home</a>
@@ -248,26 +19,21 @@
         <a href="/logout" style="color:#f44336;"><i data-lucide="log-out"></i> Logout</a>
     </nav>
 
+<div class="container">
     <div class="page-header">
-        <h1><i data-lucide="shield-check"></i> Admin Panel</h1>
-        <p>Manage your monitored services and groups</p>
+        <div>
+            <h1><i data-lucide="shield-check"></i> Admin Panel</h1>
+            <p>Manage your monitored services and groups</p>
+        </div>
     </div>
 
     <div class="admin-grid">
-
-        <!-- LEFT — Forms -->
         <div>
-            <div class="glass-card">
+            <div class="glass-card" style="margin-bottom:16px;">
                 <div class="card-title"><i data-lucide="plus-circle"></i> Add Service</div>
                 <form action="/add-service" method="post">
-                    <div class="form-group">
-                        <label for="name">Service Name</label>
-                        <input id="name" name="name" placeholder="e.g. Google, GitHub, Stripe" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="url">Service URL</label>
-                        <input id="url" name="url" placeholder="https://api.example.com/health" required>
-                    </div>
+                    <div class="form-group"><label>Service Name</label><input name="name" placeholder="e.g. Google, GitHub" required></div>
+                    <div class="form-group"><label>Service URL</label><input name="url" placeholder="https://api.example.com" required></div>
                     <div class="form-group">
                         <label>Group</label>
                         <input type="hidden" id="group_id" name="group_id" value="">
@@ -275,36 +41,25 @@
                             <div class="custom-select-trigger">None</div>
                             <div class="custom-select-options">
                                 <div class="custom-select-option selected" data-value="">None</div>
-                                {% for g in groups %}
-                                <div class="custom-select-option" data-value="{{ g.id }}">{{ g.name }}</div>
-                                {% endfor %}
+                                {% for g in groups %}<div class="custom-select-option" data-value="{{ g.id }}">{{ g.name }}</div>{% endfor %}
                             </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">
-                        <i data-lucide="plus"></i> Add Service
-                    </button>
+                    <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;"><i data-lucide="plus"></i> Add Service</button>
                 </form>
+            </div>
 
-                <hr class="divider">
-
+            <div class="glass-card">
                 <div class="card-title blue"><i data-lucide="folder-plus"></i> Add Group</div>
                 <form action="/add-group" method="post">
-                    <div class="form-group">
-                        <label for="group_name">Group Name</label>
-                        <input id="group_name" name="name" placeholder="e.g. Production, Staging" required>
-                    </div>
-                    <button type="submit" class="btn btn-secondary">
-                        <i data-lucide="folder-plus"></i> Create Group
-                    </button>
+                    <div class="form-group"><label>Group Name</label><input name="name" placeholder="e.g. Production, Staging" required></div>
+                    <button type="submit" class="btn btn-secondary" style="width:100%;justify-content:center;"><i data-lucide="folder-plus"></i> Create Group</button>
                 </form>
             </div>
         </div>
 
-        <!-- RIGHT — Services List -->
         <div class="glass-card">
             <div class="card-title"><i data-lucide="server"></i> Services ({{ services|length }})</div>
-
             {% if services %}
             <div class="services-list">
                 {% for s in services %}
@@ -315,41 +70,31 @@
                         <div class="svc-url" title="{{ s.url }}">{{ s.url }}</div>
                     </div>
                     <div class="svc-meta">
-                        {% if s.group_name %}
-                        <span class="svc-group-badge">{{ s.group_name }}</span>
-                        {% endif %}
-                        <button class="btn-icon-sm" onclick="openEdit({{ s.id }}, '{{ s.name }}', '{{ s.url }}', '{{ s.group_id or '' }}')">
-                            <i data-lucide="pencil"></i>
-                        </button>
-                        <button class="btn-icon-sm danger" onclick="confirmDelete({{ s.id }}, '{{ s.name }}')">
-                            <i data-lucide="trash-2"></i>
-                        </button>
+                        {% if s.group_name %}<span class="svc-group-badge">{{ s.group_name }}</span>{% endif %}
+                        <button class="btn-icon-sm" onclick="openEdit({{ s.id }}, '{{ s.name }}', '{{ s.url }}', '{{ s.group_id or '' }}')"><i data-lucide="pencil"></i></button>
+                        <button class="btn-icon-sm danger" onclick="confirmDelete({{ s.id }}, '{{ s.name }}')"><i data-lucide="trash-2"></i></button>
                     </div>
                 </div>
                 {% endfor %}
             </div>
             {% else %}
             <div class="empty-state">
-                <i data-lucide="inbox" style="width:40px;height:40px;display:block;margin:0 auto 12px;"></i>
+                <i data-lucide="inbox" style="width:32px;height:32px;display:block;margin:0 auto 8px;"></i>
                 <p>No services yet — add one using the form.</p>
             </div>
             {% endif %}
         </div>
-
     </div>
 </div>
 
 <!-- Delete Modal -->
 <div class="modal-overlay" id="deleteModal">
-    <div class="modal">
-        <div class="modal-icon"><i data-lucide="alert-triangle"></i></div>
-        <h3>Delete Service?</h3>
-        <p>This will permanently remove <strong id="deleteName"></strong> and all its collected metrics. This cannot be undone.</p>
+    <div class="modal" style="text-align:center;">
+        <h3 style="justify-content:center;color:var(--red);"><i data-lucide="alert-triangle" style="color:var(--red);"></i> Delete Service</h3>
+        <p>This will permanently remove <strong id="deleteName" style="color:var(--text-bright);"></strong> and all its metrics.</p>
         <div class="modal-actions">
             <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-            <form id="deleteForm" method="post" style="display:contents;">
-                <button type="submit" class="btn-delete">Delete</button>
-            </form>
+            <form id="deleteForm" method="post" style="display:contents;"><button type="submit" class="btn-delete">Delete</button></form>
         </div>
     </div>
 </div>
@@ -357,16 +102,10 @@
 <!-- Edit Modal -->
 <div class="modal-overlay" id="editModal">
     <div class="modal" style="text-align:left;">
-        <h3 style="margin-bottom:20px;display:flex;align-items:center;gap:8px;"><i data-lucide="pencil" style="width:18px;height:18px;color:#2196f3;"></i> Edit Service</h3>
+        <h3><i data-lucide="pencil" style="color:var(--cyan);"></i> Edit Service</h3>
         <form id="editForm" method="post">
-            <div class="form-group">
-                <label>Service Name</label>
-                <input id="editName" name="name" required>
-            </div>
-            <div class="form-group">
-                <label>Service URL</label>
-                <input id="editUrl" name="url" required>
-            </div>
+            <div class="form-group"><label>Service Name</label><input id="editName" name="name" required></div>
+            <div class="form-group"><label>Service URL</label><input id="editUrl" name="url" required></div>
             <div class="form-group">
                 <label>Group</label>
                 <input type="hidden" id="editGroup" name="group_id" value="">
@@ -374,118 +113,63 @@
                     <div class="custom-select-trigger">None</div>
                     <div class="custom-select-options">
                         <div class="custom-select-option selected" data-value="">None</div>
-                        {% for g in groups %}
-                        <div class="custom-select-option" data-value="{{ g.id }}">{{ g.name }}</div>
-                        {% endfor %}
+                        {% for g in groups %}<div class="custom-select-option" data-value="{{ g.id }}">{{ g.name }}</div>{% endfor %}
                     </div>
                 </div>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" onclick="closeEdit()">Cancel</button>
-                <button type="submit" class="btn-delete" style="background:#2196f3;">Save Changes</button>
+                <button type="submit" class="btn-delete" style="background:var(--cyan);">Save Changes</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
 lucide.createIcons();
 
-// ===== CUSTOM DROPDOWN =====
-document.querySelectorAll('.custom-select').forEach(select => {
-    const trigger = select.querySelector('.custom-select-trigger');
-    const options = select.querySelectorAll('.custom-select-option');
-    const targetId = select.dataset.target;
-    const hiddenInput = document.getElementById(targetId);
-
-    trigger.addEventListener('click', (e) => {
+// Custom dropdowns
+document.querySelectorAll('.custom-select').forEach(sel => {
+    const trigger = sel.querySelector('.custom-select-trigger');
+    const opts = sel.querySelectorAll('.custom-select-option');
+    const hidden = document.getElementById(sel.dataset.target);
+    trigger.addEventListener('click', e => {
         e.stopPropagation();
-        // Close all other dropdowns
-        document.querySelectorAll('.custom-select.open').forEach(s => {
-            if (s !== select) s.classList.remove('open');
-        });
-        select.classList.toggle('open');
+        document.querySelectorAll('.custom-select.open').forEach(s => { if (s !== sel) s.classList.remove('open'); });
+        sel.classList.toggle('open');
     });
-
-    options.forEach(opt => {
-        opt.addEventListener('click', () => {
-            trigger.textContent = opt.textContent;
-            hiddenInput.value = opt.dataset.value;
-            options.forEach(o => o.classList.remove('selected'));
-            opt.classList.add('selected');
-            select.classList.remove('open');
-        });
-    });
+    opts.forEach(o => o.addEventListener('click', () => {
+        trigger.textContent = o.textContent; hidden.value = o.dataset.value;
+        opts.forEach(x => x.classList.remove('selected')); o.classList.add('selected');
+        sel.classList.remove('open');
+    }));
 });
+document.addEventListener('click', () => document.querySelectorAll('.custom-select.open').forEach(s => s.classList.remove('open')));
 
-// Close dropdowns on outside click
-document.addEventListener('click', () => {
-    document.querySelectorAll('.custom-select.open').forEach(s => s.classList.remove('open'));
-});
-
-// ===== MODALS =====
-function confirmDelete(id, name) {
-    document.getElementById('deleteName').textContent = name;
-    document.getElementById('deleteForm').action = '/delete-service/' + id;
-    document.getElementById('deleteModal').classList.add('show');
-}
-
-function closeModal() {
-    document.getElementById('deleteModal').classList.remove('show');
-}
-
-function openEdit(id, name, url, groupId) {
-    document.getElementById('editName').value = name;
-    document.getElementById('editUrl').value = url;
-    document.getElementById('editGroup').value = groupId || '';
-    document.getElementById('editForm').action = '/edit-service/' + id;
-
-    // Set the edit modal custom dropdown
-    const editSelect = document.querySelector('#editModal .custom-select');
-    const editTrigger = editSelect.querySelector('.custom-select-trigger');
-    const editOpts = editSelect.querySelectorAll('.custom-select-option');
-    editOpts.forEach(o => {
-        o.classList.toggle('selected', o.dataset.value === (groupId || ''));
-        if (o.dataset.value === (groupId || '')) editTrigger.textContent = o.textContent;
-    });
-
+// Modals
+function confirmDelete(id, name) { document.getElementById('deleteName').textContent = name; document.getElementById('deleteForm').action = '/delete-service/' + id; document.getElementById('deleteModal').classList.add('show'); }
+function closeModal() { document.getElementById('deleteModal').classList.remove('show'); }
+function openEdit(id, name, url, gid) {
+    document.getElementById('editName').value = name; document.getElementById('editUrl').value = url;
+    document.getElementById('editGroup').value = gid || ''; document.getElementById('editForm').action = '/edit-service/' + id;
+    const es = document.querySelector('#editModal .custom-select'), et = es.querySelector('.custom-select-trigger');
+    es.querySelectorAll('.custom-select-option').forEach(o => { o.classList.toggle('selected', o.dataset.value === (gid || '')); if (o.dataset.value === (gid || '')) et.textContent = o.textContent; });
     document.getElementById('editModal').classList.add('show');
 }
+function closeEdit() { document.getElementById('editModal').classList.remove('show'); }
 
-function closeEdit() {
-    document.getElementById('editModal').classList.remove('show');
+document.getElementById('deleteModal').addEventListener('click', e => { if (e.target === document.getElementById('deleteModal')) closeModal(); });
+document.getElementById('editModal').addEventListener('click', e => { if (e.target === document.getElementById('editModal')) closeEdit(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeEdit(); } });
+
+// Toast
+function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast ' + type + ' show';
+    setTimeout(() => t.classList.remove('show'), 3000);
 }
-
-document.getElementById('deleteModal').addEventListener('click', function(e) {
-    if (e.target === this) closeModal();
-});
-document.getElementById('editModal').addEventListener('click', function(e) {
-    if (e.target === this) closeEdit();
-});
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { closeModal(); closeEdit(); }
-});
-
-// Toast system
-{% if toast %}
-showToast("{{ toast }}", "{{ toast_type }}");
-{% endif %}
-
-function showToast(msg, type) {
-    const toast = document.getElementById('toast');
-    const icon = type === 'success' ? 'check-circle' : 'alert-circle';
-    toast.innerHTML = '<i data-lucide="' + icon + '"></i> ' + msg;
-    toast.className = 'toast ' + type + ' show';
-    lucide.createIcons();
-    setTimeout(() => { toast.classList.remove('show'); }, 4000);
-}
-
-if (window.location.search) {
-    window.history.replaceState({}, '', window.location.pathname);
-}
+{% if toast %}showToast("{{ toast }}", "{{ toast_type }}");{% endif %}
 </script>
 </body>
 </html>
