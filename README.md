@@ -1,4 +1,4 @@
-# ⚡ PULSE — API Monitoring System
+# PULSE — API Monitoring System
 
 > Real-time API health monitoring with WebSocket live updates, JWT auth, and PostgreSQL support.
 
@@ -6,9 +6,10 @@
 
 ---
 
-## 🚀 Features
+## Features
 
 ### Real-time Monitoring
+
 - **WebSocket Live Updates** — Dashboard receives metric pushes instantly, no polling
 - **Automated Health Checks** — Pings all services every 30s (configurable via env)
 - **Uptime Tracking** — Calculates uptime % from historical metrics
@@ -16,6 +17,7 @@
 - **Live Indicator** — Green "Live" badge when WebSocket is connected, auto-reconnects
 
 ### Authentication
+
 - **Sign Up / Sign In** — Tabbed login page, real user accounts stored in DB
 - **bcrypt Hashed Passwords** — No plaintext, uses `bcrypt.hashpw()` + salt
 - **JWT Sessions** — `python-jose` HS256 tokens in httponly cookies (24h expiry)
@@ -23,6 +25,7 @@
 - **Public Pages** — Dashboard and home are accessible without login
 
 ### Admin Panel (Full CRUD)
+
 - **Add Services** — Name, URL, group, duplicate detection, auto `https://` prefix
 - **Edit Services** — Modal with pre-filled fields, inline update
 - **Delete Services** — Confirmation modal, cascades metric deletion
@@ -30,6 +33,7 @@
 - **Toast Notifications** — Success/error feedback on every action
 
 ### Production Ready
+
 - **PostgreSQL Support** — Switch from SQLite to PostgreSQL via env var
 - **Environment Variables** — All secrets in `.env`, nothing hardcoded
 - **CORS Middleware** — Ready for API consumers
@@ -38,7 +42,7 @@
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
 ### Login (Sign In / Sign Up)
 ![Login](docs/login.png)
@@ -51,7 +55,7 @@
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -67,7 +71,7 @@
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 PULSE/
@@ -102,7 +106,7 @@ PULSE/
 
 ---
 
-## ⚙️ Setup
+## Setup
 
 ```bash
 # Clone
@@ -123,11 +127,11 @@ cp .env.example .env         # Edit .env with your values
 uvicorn app.main:app --reload
 ```
 
-Open **http://127.0.0.1:8000** → Sign up → Start monitoring.
+Open **http://127.0.0.1:8000** — Sign up — Start monitoring.
 
 ---
 
-## 🔐 Environment Variables
+## Environment Variables
 
 ```env
 # Database (SQLite for dev, PostgreSQL for prod)
@@ -146,21 +150,21 @@ REQUEST_TIMEOUT=5
 
 ---
 
-## 🌐 Routes
+## Routes
 
 | Route | Auth | Description |
 |-------|------|------------|
 | `/` | Public | Home page |
 | `/dashboard` | Public | Live dashboard (WebSocket) |
 | `/login` | Public | Sign In / Sign Up |
-| `/admin` | 🔒 JWT | Admin panel (CRUD) |
-| `/logout` | — | Clear session |
+| `/admin` | JWT | Admin panel (CRUD) |
+| `/logout` | - | Clear session |
 | `/docs` | Public | Swagger API docs |
-| `/ws` | — | WebSocket endpoint |
+| `/ws` | - | WebSocket endpoint |
 
 ---
 
-## 📡 REST API
+## REST API
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -173,7 +177,7 @@ REQUEST_TIMEOUT=5
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 ```
 fastapi, uvicorn, sqlmodel, httpx, jinja2, apscheduler,
@@ -183,6 +187,6 @@ python-dotenv, psycopg2-binary
 
 ---
 
-## 📄 License
+## License
 
 MIT
