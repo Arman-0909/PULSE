@@ -2,96 +2,76 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Login — Pulse</title>
+    <title>Authentication — Pulse</title>
     <link rel="stylesheet" href="/static/style.css">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <style>
-        body { display: flex; align-items: center; justify-content: center; }
-        .login-card {
-            position: relative; z-index: 1; width: 380px; max-width: 90vw;
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 28px 24px;
-            animation: fadeIn 0.3s ease-out;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        .login-header { text-align: center; margin-bottom: 20px; }
-        .login-logo {
-            width: 36px; height: 36px; border-radius: var(--radius);
-            background: var(--accent-dim); border: 1px solid rgba(168,85,247,0.15);
-            display: inline-flex; align-items: center; justify-content: center;
-            color: var(--accent); margin-bottom: 10px;
-        }
-        .login-logo i { width: 16px; height: 16px; }
-        .login-header h1 { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--text-bright); }
-        .login-header p { font-size: 10px; color: var(--text-dim); margin-top: 2px; font-family: var(--mono); }
-        .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 18px; }
-        .tab {
-            padding: 7px; border: none; background: transparent;
-            color: var(--text-dim); font-size: 10px; font-weight: 600; font-family: var(--mono);
-            cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; text-transform: uppercase;
-        }
-        .tab.active { background: var(--accent-dim); color: var(--accent); }
-        .tab:hover:not(.active) { color: var(--text); background: var(--surface2); }
-        .form-panel { display: none; }
-        .form-panel.active { display: block; }
-        .input-wrapper { position: relative; }
-        .input-wrapper i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 13px; height: 13px; color: var(--text-dim); pointer-events: none; }
-        .input-wrapper input { padding-left: 30px; background: transparent; }
-        .btn-submit {
-            width: 100%; padding: 9px; border-radius: var(--radius); border: 1px solid rgba(168,85,247,0.3);
-            background: var(--accent-dim); color: var(--accent); font-size: 11px; font-weight: 600;
-            font-family: var(--mono); cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px;
-        }
-        .btn-submit:hover { background: rgba(168,85,247,0.2); box-shadow: 0 0 12px var(--accent-dim); }
-        .error-msg {
-            background: var(--red-dim); border: 1px solid rgba(239,68,68,0.15);
-            border-radius: var(--radius); padding: 7px 10px; margin-bottom: 12px;
-            font-size: 10px; color: var(--red); display: flex; align-items: center; gap: 5px; font-family: var(--mono);
-        }
-        .error-msg i { width: 12px; height: 12px; flex-shrink: 0; }
-        .back-link { text-align: center; margin-top: 14px; }
-        .back-link a { font-size: 10px; color: var(--text-dim); text-decoration: none; font-family: var(--mono); }
-        .back-link a:hover { color: var(--accent); }
-        .pw-hint { font-size: 9px; color: var(--text-dim); margin-top: 2px; font-family: var(--mono); }
-    </style>
 </head>
 <body>
-    <div class="login-card">
-        <div class="login-header">
-            <div class="login-logo"><i data-lucide="zap"></i></div>
-            <h1 id="formTitle">Welcome back</h1>
-            <p id="formSubtitle">Sign in to access the admin panel</p>
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-header">
+                <a href="/" style="text-decoration:none;">
+                    <div class="logo-box"><i data-lucide="zap"></i></div>
+                </a>
+                <h1 id="formTitle">Sign in to Pulse</h1>
+                <p id="formSubtitle">Enter your details to access the console</p>
+            </div>
+            
+            {% if error %}
+            <div class="error-msg"><i data-lucide="alert-circle"></i> {{ error }}</div>
+            {% endif %}
+            
+            <div class="tabs">
+                <button class="tab {% if tab != 'signup' %}active{% endif %}" onclick="switchTab('login')">Sign In</button>
+                <button class="tab {% if tab == 'signup' %}active{% endif %}" onclick="switchTab('signup')">Sign Up</button>
+            </div>
+            
+            <div class="form-panel {% if tab != 'signup' %}active{% endif %}" id="loginPanel">
+                <form action="/login" method="post">
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input name="username" class="form-control" placeholder="admin" required>
+                    </div>
+                    <div class="input-group" style="margin-bottom:24px;">
+                        <label>Password</label>
+                        <input name="password" type="password" class="form-control" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%;padding:10px;">Sign In</button>
+                </form>
+            </div>
+            
+            <div class="form-panel {% if tab == 'signup' %}active{% endif %}" id="signupPanel">
+                <form action="/signup" method="post">
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input name="username" class="form-control" placeholder="Choose a username" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input name="password" type="password" class="form-control" placeholder="Min 6 characters" required>
+                    </div>
+                    <div class="input-group" style="margin-bottom:24px;">
+                        <label>Confirm Password</label>
+                        <input name="confirm" type="password" class="form-control" placeholder="Confirm password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%;padding:10px;">Create Account</button>
+                </form>
+            </div>
+            
+            <div style="text-align:center;margin-top:24px;">
+                <a href="/" style="color:var(--text-secondary);font-size:12px;text-decoration:none;"><i data-lucide="arrow-left" style="width:12px;height:12px;vertical-align:-2px;"></i> Back to website</a>
+            </div>
         </div>
-        {% if error %}<div class="error-msg"><i data-lucide="alert-circle"></i> {{ error }}</div>{% endif %}
-        <div class="tabs">
-            <button class="tab {% if tab != 'signup' %}active{% endif %}" onclick="switchTab('login')">Sign In</button>
-            <button class="tab {% if tab == 'signup' %}active{% endif %}" onclick="switchTab('signup')">Sign Up</button>
-        </div>
-        <div class="form-panel {% if tab != 'signup' %}active{% endif %}" id="loginPanel">
-            <form action="/login" method="post">
-                <div class="form-group"><label>Username</label><div class="input-wrapper"><i data-lucide="user"></i><input name="username" placeholder="Enter username" required></div></div>
-                <div class="form-group"><label>Password</label><div class="input-wrapper"><i data-lucide="lock"></i><input name="password" type="password" placeholder="Enter password" required></div></div>
-                <button type="submit" class="btn-submit">Sign In →</button>
-            </form>
-        </div>
-        <div class="form-panel {% if tab == 'signup' %}active{% endif %}" id="signupPanel">
-            <form action="/signup" method="post">
-                <div class="form-group"><label>Username</label><div class="input-wrapper"><i data-lucide="user-plus"></i><input name="username" placeholder="Choose a username" required></div></div>
-                <div class="form-group"><label>Password</label><div class="input-wrapper"><i data-lucide="lock"></i><input name="password" type="password" placeholder="Create a password" required></div><div class="pw-hint">Min 6 characters</div></div>
-                <div class="form-group"><label>Confirm</label><div class="input-wrapper"><i data-lucide="shield-check"></i><input name="confirm" type="password" placeholder="Confirm password" required></div></div>
-                <button type="submit" class="btn-submit">Create Account →</button>
-            </form>
-        </div>
-        <div class="back-link"><a href="/">← back to home</a></div>
     </div>
+    
     <script>
     lucide.createIcons();
     function switchTab(t) {
         document.getElementById('loginPanel').classList.toggle('active', t === 'login');
         document.getElementById('signupPanel').classList.toggle('active', t === 'signup');
         document.querySelectorAll('.tab').forEach((b, i) => b.classList.toggle('active', i === (t === 'login' ? 0 : 1)));
-        document.getElementById('formTitle').textContent = t === 'login' ? 'Welcome back' : 'Create account';
-        document.getElementById('formSubtitle').textContent = t === 'login' ? 'Sign in to access the admin panel' : 'Register to start monitoring';
+        document.getElementById('formTitle').textContent = t === 'login' ? 'Sign in to Pulse' : 'Create an account';
+        document.getElementById('formSubtitle').textContent = t === 'login' ? 'Enter your details to access the console' : 'Register to start monitoring services';
     }
     </script>
 </body>

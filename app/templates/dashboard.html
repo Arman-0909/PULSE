@@ -2,91 +2,122 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Dashboard — Pulse</title>
+    <title>Monitoring — Pulse</title>
     <link rel="stylesheet" href="/static/style.css">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <style>
-        .services-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
-        .services-header h2 { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
-        .services-header h2 i { width: 15px; height: 15px; color: var(--accent); }
-        .checks-count { font-family: var(--mono); font-size: 10px; }
-    </style>
 </head>
 <body>
-    <nav class="nav">
-        <div class="nav-logo"><div class="dot"></div> PULSE</div>
-        <a href="/"><i data-lucide="home"></i> Home</a>
-        <a href="/dashboard" class="active"><i data-lucide="activity"></i> Dashboard</a>
-        <a href="/admin"><i data-lucide="settings"></i> Admin</a>
-        {% if logged_in %}<a href="/logout" style="color:#f44336;"><i data-lucide="log-out"></i> Logout</a>
-        {% else %}<a href="/login"><i data-lucide="log-in"></i> Login</a>{% endif %}
-    </nav>
+    <div class="app-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="brand">
+                    <div class="logo-box"><i data-lucide="zap"></i></div>
+                    Pulse Console
+                </a>
+            </div>
+            <div class="sidebar-nav">
+                <div class="sidebar-nav-group">Project</div>
+                <a href="/" class="nav-item"><i data-lucide="home"></i> Home</a>
+                <div class="sidebar-nav-group">Branch</div>
+                <a href="/dashboard" class="nav-item active"><i data-lucide="activity"></i> Monitoring</a>
+                <a href="/admin" class="nav-item"><i data-lucide="server"></i> Services</a>
+                <a href="/docs" class="nav-item"><i data-lucide="file-text"></i> API Docs</a>
+            </div>
+            <div class="sidebar-footer">
+                {% if logged_in %}
+                <a href="/logout" class="nav-item danger" style="color:var(--text-secondary);"><i data-lucide="log-out"></i> Logout</a>
+                {% else %}
+                <a href="/login" class="nav-item"><i data-lucide="log-in"></i> Sign In</a>
+                {% endif %}
+            </div>
+        </aside>
 
-<div class="container">
-    <div class="page-header">
-        <div>
-            <h1><i data-lucide="bar-chart-3"></i> Dashboard</h1>
-            <p>Real-time health monitoring for your services</p>
-        </div>
-        <div class="refresh-note" id="wsStatus"><i data-lucide="loader-2"></i> Connecting...</div>
-    </div>
-
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-top"><div class="stat-label">Total Services</div><div class="stat-icon purple"><i data-lucide="server"></i></div></div>
-            <div class="stat-value">{{ total }}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-top"><div class="stat-label">Online</div><div class="stat-icon green"><i data-lucide="check-circle"></i></div></div>
-            <div class="stat-value green">{{ online }}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-top"><div class="stat-label">Offline</div><div class="stat-icon red"><i data-lucide="alert-circle"></i></div></div>
-            <div class="stat-value red">{{ offline }}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-top"><div class="stat-label">Avg Response</div><div class="stat-icon blue"><i data-lucide="timer"></i></div></div>
-            <div class="stat-value blue">{{ avg_response }}<span style="font-size:11px;color:var(--text-dim);font-weight:400">ms</span></div>
-        </div>
-    </div>
-
-    <div class="services-header"><h2><i data-lucide="layout-grid"></i> Services</h2></div>
-
-    {% if services %}
-    <div class="services-grid">
-        {% for s in services %}
-        <div class="service-card {{ s.status }}">
-            <div class="service-top">
-                <div>
-                    <div class="service-name">{{ s.name }}</div>
-                    <div class="service-url" title="{{ s.url }}">{{ s.url }}</div>
-                    {% if s.group %}<div class="service-group-tag">{{ s.group }}</div>{% endif %}
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- TOPBAR -->
+            <div class="topbar">
+                <div class="breadcrumbs">
+                    <i data-lucide="box"></i> Pulse <span>/</span> Monitoring
                 </div>
-                <div class="status-badge {{ s.status }}">
-                    <div class="status-dot {{ s.status }}"></div>
-                    {{ s.status | upper }}
+                <div class="topbar-actions">
+                    <div class="status-indicator" id="wsStatus">
+                        <div class="dot"></div> All OK
+                    </div>
                 </div>
             </div>
-            <div class="service-metrics">
-                <div class="metric-item"><div class="metric-label">Uptime</div><div class="metric-val green">{{ s.uptime }}%</div></div>
-                <div class="metric-item"><div class="metric-label">Response</div><div class="metric-val">{{ s.response_time }}ms</div></div>
+
+            <!-- PAGE CONTENT -->
+            <div class="page-container">
+                <h1 class="page-title">Monitoring</h1>
+                <div class="page-subtitle"><i data-lucide="git-branch"></i> production</div>
+
+                <!-- STATS GRID -->
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <div class="metric-box-title">Total Services</div>
+                        <div class="metric-box-value">{{ total }}</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-box-title">Online <i data-lucide="check-circle" style="color:var(--accent-green);opacity:0.8;"></i></div>
+                        <div class="metric-box-value green">{{ online }}</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-box-title">Offline <i data-lucide="alert-circle" style="color:var(--accent-red);opacity:0.8;"></i></div>
+                        <div class="metric-box-value red">{{ offline }}</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-box-title">Avg Response</div>
+                        <div class="metric-box-value">{{ avg_response }}<span style="font-size:12px;color:var(--text-secondary);margin-left:4px;">ms</span></div>
+                    </div>
+                </div>
+
+                <!-- SERVICES GRID -->
+                {% if services %}
+                <div class="services-grid">
+                    {% for s in services %}
+                    <div class="service-card" data-service="{{ s.name }}">
+                        <div class="service-header">
+                            <div class="service-info">
+                                <div class="service-name">{{ s.name }}</div>
+                                <div class="service-url">{{ s.url }}</div>
+                            </div>
+                            <div class="badge {{ s.status }}">
+                                <div class="dot"></div> {{ s.status }}
+                            </div>
+                        </div>
+
+                        <div class="service-stats">
+                            <div class="s-stat">
+                                <span class="s-stat-label">Uptime</span>
+                                <span class="s-stat-val uptime-val">{{ s.uptime }}%</span>
+                            </div>
+                            <div class="s-stat">
+                                <span class="s-stat-label">Response</span>
+                                <span class="s-stat-val response-val">{{ s.response_time }}ms</span>
+                            </div>
+                        </div>
+
+                        <div class="sparkline-wrapper" id="spark-{{ s.id }}"></div>
+
+                        <div class="service-footer">
+                            <span class="checked-val"><i data-lucide="clock"></i> {{ s.last_checked }}</span>
+                            <a href="/admin" class="btn"><i data-lucide="settings"></i> Manage</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="panel" style="text-align:center;padding:48px 20px;">
+                    <i data-lucide="server-off" style="width:40px;height:40px;color:var(--text-muted);margin-bottom:16px;"></i>
+                    <h3 style="font-size:15px;color:var(--text-primary);margin-bottom:8px;">No services configured</h3>
+                    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:24px;">Add services in the admin panel to start monitoring.</p>
+                    <a href="/admin" class="btn btn-primary"><i data-lucide="plus"></i> Add Service</a>
+                </div>
+                {% endif %}
             </div>
-            <div class="sparkline-container" id="spark-{{ s.id }}"></div>
-            <div class="service-footer">
-                <div class="last-checked"><i data-lucide="clock"></i> {{ s.last_checked }}</div>
-                <div class="checks-count">{{ s.total_checks }} checks</div>
-            </div>
-        </div>
-        {% endfor %}
+        </main>
     </div>
-    {% else %}
-    <div class="empty-state">
-        <i data-lucide="radio-tower" style="width:36px;height:36px;display:block;margin:0 auto 10px;"></i>
-        <h3>No services monitored yet</h3>
-        <p><a href="/admin">Add your first service</a> to get started</p>
-    </div>
-    {% endif %}
-</div>
 
 <script>
 lucide.createIcons();
@@ -98,7 +129,7 @@ function drawSparkline(id, data, isUp) {
     const step = w / (data.length - 1 || 1);
     const pts = data.map((v, i) => `${i * step},${h - (v / max) * (h - 4) - 2}`).join(' ');
     const fill = `0,${h} ${pts} ${(data.length - 1) * step},${h}`;
-    const color = isUp ? 'var(--green)' : 'var(--red)';
+    const color = isUp ? 'var(--accent-green)' : 'var(--accent-red)';
     c.innerHTML = `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
         <defs><linearGradient id="g-${id}" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stop-color="${color}" stop-opacity="0.2"/>
@@ -120,16 +151,14 @@ function connectWS() {
     const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
     ws = new WebSocket(protocol + '//' + location.host + '/ws');
     ws.onopen = () => {
-        wsStatus.innerHTML = '<i data-lucide="radio"></i> Live';
-        wsStatus.style.color = 'var(--green)';
-        lucide.createIcons();
+        wsStatus.innerHTML = '<div class="dot"></div> All OK';
+        wsStatus.className = 'status-indicator';
         if (refreshTimer) clearInterval(refreshTimer);
     };
     ws.onmessage = () => refreshDashboard();
     ws.onclose = () => {
-        wsStatus.innerHTML = '<i data-lucide="loader-2"></i> Reconnecting...';
-        wsStatus.style.color = 'var(--red)';
-        lucide.createIcons();
+        wsStatus.innerHTML = '<div class="dot"></div> Reconnecting...';
+        wsStatus.className = 'status-indicator error';
         if (!refreshTimer) refreshTimer = setInterval(refreshDashboard, 15000);
         setTimeout(connectWS, 3000);
     };
@@ -141,28 +170,40 @@ async function refreshDashboard() {
     try {
         const [sRes, tRes] = await Promise.all([fetch('/api/services'), fetch('/api/stats')]);
         const services = await sRes.json(), stats = await tRes.json();
-        const sv = document.querySelectorAll('.stat-value');
-        if (sv[0]) sv[0].textContent = stats.total;
-        if (sv[1]) sv[1].textContent = stats.online;
-        if (sv[2]) sv[2].textContent = stats.offline;
-        if (sv[3]) sv[3].innerHTML = stats.avg_response + '<span style="font-size:11px;color:var(--text-dim);font-weight:400">ms</span>';
-        const grid = document.querySelector('.services-grid');
-        if (!grid) return;
+        
+        // Update stats
+        const vals = document.querySelectorAll('.metric-box-value');
+        if (vals[0]) vals[0].textContent = stats.total;
+        if (vals[1]) vals[1].textContent = stats.online;
+        if (vals[2]) vals[2].textContent = stats.offline;
+        if (vals[3]) vals[3].innerHTML = `${stats.avg_response}<span style="font-size:12px;color:var(--text-secondary);margin-left:4px;">ms</span>`;
+        
+        // Update cards
         services.forEach(s => {
-            let card = null;
-            grid.querySelectorAll('.service-card').forEach(c => { if (c.querySelector('.service-name')?.textContent === s.name) card = c; });
+            const card = document.querySelector(`.service-card[data-service="${s.name}"]`);
             if (!card) return;
-            const badge = card.querySelector('.status-badge');
-            if (badge) { badge.className = 'status-badge ' + s.status; badge.innerHTML = '<div class="status-dot ' + s.status + '"></div>' + s.status.toUpperCase(); }
-            card.className = 'service-card ' + s.status;
-            const vals = card.querySelectorAll('.metric-val');
-            if (vals[0]) vals[0].textContent = s.uptime + '%';
-            if (vals[1]) vals[1].textContent = s.response_time + 'ms';
-            const ft = card.querySelector('.last-checked');
-            if (ft && s.last_checked) { const t = s.last_checked.includes('T') ? s.last_checked.split('T')[1].split('.')[0] : s.last_checked; ft.innerHTML = '<i data-lucide="clock"></i> ' + t; }
-            drawSparkline('spark-' + s.id, s.sparkline, s.status === 'up');
+            
+            const badge = card.querySelector('.badge');
+            if (badge) {
+                badge.className = `badge ${s.status}`;
+                badge.innerHTML = `<div class="dot"></div> ${s.status}`;
+            }
+            
+            const uv = card.querySelector('.uptime-val');
+            if (uv) uv.textContent = `${s.uptime}%`;
+            
+            const rv = card.querySelector('.response-val');
+            if (rv) rv.textContent = `${s.response_time}ms`;
+            
+            const cv = card.querySelector('.checked-val');
+            if (cv && s.last_checked) {
+                const t = s.last_checked.includes('T') ? s.last_checked.split('T')[1].split('.')[0] : s.last_checked;
+                cv.innerHTML = `<i data-lucide="clock"></i> ${t}`;
+                lucide.createIcons();
+            }
+            
+            drawSparkline(`spark-${s.id}`, s.sparkline, s.status === 'up');
         });
-        lucide.createIcons();
     } catch (e) { console.error('Refresh failed:', e); }
 }
 </script>

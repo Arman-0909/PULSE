@@ -6,133 +6,108 @@
     <link rel="stylesheet" href="/static/style.css">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <style>
-        .hero { text-align: center; padding: 48px 0 32px; }
-        .hero-badge { font-family: var(--mono); font-size: 10px; color: var(--accent); background: var(--accent-dim); padding: 4px 12px; border-radius: var(--radius); border: 1px solid rgba(168,85,247,0.15); display: inline-block; margin-bottom: 16px; letter-spacing: 1px; text-transform: uppercase; }
-        .hero h1 { font-size: 32px; font-weight: 700; color: var(--text-bright); font-family: var(--mono); letter-spacing: -1px; }
-        .hero h1 span { color: var(--accent); }
-        .hero p { color: var(--text-dim); font-size: 13px; margin-top: 6px; max-width: 440px; margin-inline: auto; }
-        .hero-actions { display: flex; gap: 8px; justify-content: center; margin-top: 20px; }
-        .hero-btn { padding: 9px 18px; border-radius: var(--radius); font-family: var(--mono); font-size: 11px; font-weight: 600; text-decoration: none; transition: all 0.2s; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 5px; }
-        .hero-btn i { width: 13px; height: 13px; }
-        .hero-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-        .hero-btn.primary:hover { box-shadow: 0 0 16px var(--accent-glow); }
-        .hero-btn.ghost { background: transparent; color: var(--text); }
-        .hero-btn.ghost:hover { background: var(--surface2); }
+        .hero { padding: 40px 0; max-width: 600px; }
+        .hero h1 { font-size: 32px; font-weight: 600; color: var(--text-primary); letter-spacing: -1px; margin-bottom: 8px; }
+        .hero p { color: var(--text-secondary); font-size: 14px; margin-bottom: 24px; line-height: 1.6; }
+        .hero-actions { display: flex; gap: 12px; }
 
-        .uptime-section { text-align: center; margin-bottom: 32px; }
-        .uptime-bar-outer { width: 100%; max-width: 500px; height: 4px; background: var(--surface2); border-radius: 0; margin: 8px auto 6px; overflow: hidden; }
-        .uptime-bar-inner { height: 100%; background: var(--green); }
-        .uptime-label { font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--green); }
-        .uptime-sub { font-size: 10px; color: var(--text-dim); font-family: var(--mono); }
+        .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px; }
+        .feature-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 20px; }
+        .feature-icon { width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+        .feature-icon.green { background: var(--accent-green-dim); color: var(--accent-green); }
+        .feature-icon.purple { background: var(--accent-purple-dim); color: var(--accent-purple); }
+        .feature-icon.blue { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); }
+        .feature-card h3 { font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+        .feature-card p { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+        
+        .uptime-banner { margin-top: 40px; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 24px; display: flex; align-items: center; justify-content: space-between; }
+        .uptime-info h2 { font-size: 24px; font-weight: 600; color: var(--accent-green); font-family: var(--font-mono); margin-bottom: 4px; }
+        .uptime-info p { font-size: 12px; color: var(--text-secondary); }
+        .uptime-chart { width: 300px; height: 8px; background: var(--bg-hover); border-radius: 4px; overflow: hidden; }
+        .uptime-fill { height: 100%; background: var(--accent-green); border-radius: 4px; }
 
-        .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; transition: border-color 0.2s; }
-        .feature-card:hover { border-color: var(--border2); }
-        .feature-icon { width: 28px; height: 28px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
-        .feature-icon i { width: 14px; height: 14px; }
-        .feature-icon.purple { background: var(--accent-dim); color: var(--accent); }
-        .feature-icon.cyan { background: var(--cyan-dim); color: var(--cyan); }
-        .feature-icon.green { background: var(--green-dim); color: var(--green); }
-        .feature-card h3 { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--text-bright); margin-bottom: 3px; }
-        .feature-card p { font-size: 10px; color: var(--text-dim); line-height: 1.5; }
-
-        .visit-section { margin-top: 32px; border-top: 1px solid var(--border); padding-top: 24px; }
-        .visit-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .visit-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; text-decoration: none; transition: border-color 0.2s; display: flex; align-items: center; gap: 10px; }
-        .visit-card:hover { border-color: var(--accent); }
-        .visit-icon { width: 28px; height: 28px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .visit-icon i { width: 14px; height: 14px; }
-        .visit-card h4 { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--text-bright); }
-        .visit-card p { font-size: 9px; color: var(--text-dim); margin-top: 1px; }
-
-        @media (max-width: 768px) { .features, .visit-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) { .feature-grid { grid-template-columns: 1fr; } .uptime-banner { flex-direction: column; align-items: flex-start; gap: 16px; } .uptime-chart { width: 100%; } }
     </style>
 </head>
 <body>
-    <nav class="nav">
-        <div class="nav-logo"><div class="dot"></div> PULSE</div>
-        <a href="/" class="active"><i data-lucide="home"></i> Home</a>
-        <a href="/dashboard"><i data-lucide="activity"></i> Dashboard</a>
-        <a href="/admin"><i data-lucide="settings"></i> Admin</a>
-        {% if logged_in %}<a href="/logout" style="color:#f44336;"><i data-lucide="log-out"></i> Logout</a>
-        {% else %}<a href="/login"><i data-lucide="log-in"></i> Login</a>{% endif %}
-    </nav>
-
-    <div class="container">
-        <div class="hero">
-            <div class="hero-badge">Real-time monitoring</div>
-            <h1>Monitor your <span>APIs</span></h1>
-            <p>Real-time health checks, WebSocket live updates, and instant alerts — all in one dashboard.</p>
-            <div class="hero-actions">
-                <a href="/dashboard" class="hero-btn primary"><i data-lucide="activity"></i> Open Dashboard</a>
-                <a href="/admin" class="hero-btn ghost"><i data-lucide="settings"></i> Manage Services</a>
-                <a href="/docs" class="hero-btn ghost"><i data-lucide="file-text"></i> API Docs</a>
-            </div>
-        </div>
-
-        <div class="uptime-section">
-            <div class="uptime-label">{{ uptime_pct }}%</div>
-            <div class="uptime-bar-outer"><div class="uptime-bar-inner" style="width:{{ uptime_pct }}%"></div></div>
-            <div class="uptime-sub">Global uptime across {{ total }} services</div>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-top"><div class="stat-label">Services</div><div class="stat-icon purple"><i data-lucide="server"></i></div></div>
-                <div class="stat-value">{{ total }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-top"><div class="stat-label">Online</div><div class="stat-icon green"><i data-lucide="check-circle"></i></div></div>
-                <div class="stat-value green">{{ online }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-top"><div class="stat-label">Offline</div><div class="stat-icon red"><i data-lucide="alert-circle"></i></div></div>
-                <div class="stat-value red">{{ offline }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-top"><div class="stat-label">Avg Response</div><div class="stat-icon blue"><i data-lucide="timer"></i></div></div>
-                <div class="stat-value blue">{{ avg_response }}<span style="font-size:11px;color:var(--text-dim);font-weight:400">ms</span></div>
-            </div>
-        </div>
-
-        <div class="features">
-            <div class="feature-card">
-                <div class="feature-icon purple"><i data-lucide="radio"></i></div>
-                <h3>WebSocket Live</h3>
-                <p>Real-time push updates — no polling, no refresh needed.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon cyan"><i data-lucide="shield-check"></i></div>
-                <h3>JWT Auth</h3>
-                <p>bcrypt passwords, signed JWT tokens, httponly cookies.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon green"><i data-lucide="database"></i></div>
-                <h3>PostgreSQL Ready</h3>
-                <p>SQLite for dev, PostgreSQL for prod — switch via env var.</p>
-            </div>
-        </div>
-
-        <div class="visit-section">
-            <div class="visit-grid">
-                <a href="/dashboard" class="visit-card">
-                    <div class="visit-icon" style="background:var(--accent-dim);color:var(--accent);"><i data-lucide="activity"></i></div>
-                    <div><h4>Dashboard</h4><p>Live monitoring view</p></div>
-                </a>
-                <a href="/admin" class="visit-card">
-                    <div class="visit-icon" style="background:var(--cyan-dim);color:var(--cyan);"><i data-lucide="settings"></i></div>
-                    <div><h4>Admin Panel</h4><p>Manage services</p></div>
-                </a>
-                <a href="/docs" class="visit-card">
-                    <div class="visit-icon" style="background:var(--green-dim);color:var(--green);"><i data-lucide="file-text"></i></div>
-                    <div><h4>API Docs</h4><p>Swagger / OpenAPI</p></div>
-                </a>
-                <a href="/login" class="visit-card">
-                    <div class="visit-icon" style="background:var(--red-dim);color:var(--red);"><i data-lucide="log-in"></i></div>
-                    <div><h4>Login</h4><p>Sign in or register</p></div>
+    <div class="app-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="brand">
+                    <div class="logo-box"><i data-lucide="zap"></i></div>
+                    Pulse Console
                 </a>
             </div>
-        </div>
+            <div class="sidebar-nav">
+                <div class="sidebar-nav-group">Project</div>
+                <a href="/" class="nav-item active"><i data-lucide="home"></i> Home</a>
+                <div class="sidebar-nav-group">Branch</div>
+                <a href="/dashboard" class="nav-item"><i data-lucide="activity"></i> Monitoring</a>
+                <a href="/admin" class="nav-item"><i data-lucide="server"></i> Services</a>
+                <a href="/docs" class="nav-item"><i data-lucide="file-text"></i> API Docs</a>
+            </div>
+            <div class="sidebar-footer">
+                {% if logged_in %}
+                <a href="/logout" class="nav-item danger" style="color:var(--text-secondary);"><i data-lucide="log-out"></i> Logout</a>
+                {% else %}
+                <a href="/login" class="nav-item"><i data-lucide="log-in"></i> Sign In</a>
+                {% endif %}
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- TOPBAR -->
+            <div class="topbar">
+                <div class="breadcrumbs">
+                    <i data-lucide="box"></i> Pulse <span>/</span> Overview
+                </div>
+                <div class="topbar-actions">
+                    <a href="/dashboard" class="btn"><i data-lucide="activity"></i> Go to Dashboard</a>
+                </div>
+            </div>
+
+            <!-- PAGE CONTENT -->
+            <div class="page-container">
+                <div class="hero">
+                    <h1>Real-time API Monitoring</h1>
+                    <p>Pulse provides continuous health checks, real-time WebSocket updates, and an elegant console to manage your infrastructure endpoints.</p>
+                    <div class="hero-actions">
+                        <a href="/dashboard" class="btn btn-primary">Open Dashboard</a>
+                        <a href="/docs" class="btn">View Documentation</a>
+                    </div>
+                </div>
+
+                <div class="uptime-banner">
+                    <div class="uptime-info">
+                        <h2>{{ uptime_pct }}%</h2>
+                        <p>Global uptime across {{ total }} configured services</p>
+                    </div>
+                    <div class="uptime-chart">
+                        <div class="uptime-fill" style="width: {{ uptime_pct }}%"></div>
+                    </div>
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon purple"><i data-lucide="radio"></i></div>
+                        <h3>Live WebSockets</h3>
+                        <p>Receive push updates instantly without polling the server. The dashboard flashes exactly when endpoints go down.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon green"><i data-lucide="shield-check"></i></div>
+                        <h3>Secure Architecture</h3>
+                        <p>Built with bcrypt password hashing, signed JWT tokens, and strict HttpOnly cookie security for admin routes.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon blue"><i data-lucide="database"></i></div>
+                        <h3>Production Ready</h3>
+                        <p>Developed with Python 3.11, FastAPI, and SQLModel. Easily toggle between SQLite for dev and PostgreSQL for prod.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
     <script>lucide.createIcons();</script>
 </body>
