@@ -1,46 +1,46 @@
-# PULSE — API Monitoring System
+# PULSE - API Monitoring System
 
 > Real-time API health monitoring with WebSocket live updates, JWT auth, and PostgreSQL support.
 
 ![Dashboard](docs/dashboard.png)
 
----
+-
 
 ## Features
 
 ### Real-time Monitoring
 
-- **WebSocket Live Updates** — Dashboard receives metric pushes instantly, no polling
-- **Automated Health Checks** — Pings all services every 30s (configurable via env)
-- **Uptime Tracking** — Calculates uptime % from historical metrics
-- **Response Time Sparklines** — SVG charts from real data
-- **Live Indicator** — Green "Live" badge when WebSocket is connected, auto-reconnects
+- **WebSocket Live Updates** - Dashboard receives metric pushes instantly, no polling
+- **Automated Health Checks** - Pings all services every 30s (configurable via env)
+- **Uptime Tracking** - Calculates uptime % from historical metrics
+- **Response Time Sparklines** - SVG charts from real data
+- **Live Indicator** - Green "Live" badge when WebSocket is connected, auto-reconnects
 
 ### Authentication
 
-- **Sign Up / Sign In** — Tabbed login page, real user accounts stored in DB
-- **bcrypt Hashed Passwords** — No plaintext, uses `bcrypt.hashpw()` + salt
-- **JWT Sessions** — `python-jose` HS256 tokens in httponly cookies (24h expiry)
-- **Protected Admin** — All admin/CRUD routes require valid JWT
-- **Public Pages** — Dashboard and home are accessible without login
+- **Sign Up / Sign In** - Tabbed login page, real user accounts stored in DB
+- **bcrypt Hashed Passwords** - No plaintext, uses `bcrypt.hashpw()` + salt
+- **JWT Sessions** - `python-jose` HS256 tokens in httponly cookies (24h expiry)
+- **Protected Admin** - All admin/CRUD routes require valid JWT
+- **Public Pages** - Dashboard and home are accessible without login
 
 ### Admin Panel (Full CRUD)
 
-- **Add Services** — Name, URL, group, duplicate detection, auto `https://` prefix
-- **Edit Services** — Modal with pre-filled fields, inline update
-- **Delete Services** — Confirmation modal, cascades metric deletion
-- **Service Groups** — Create and assign groups
-- **Toast Notifications** — Success/error feedback on every action
+- **Add Services** - Name, URL, group, duplicate detection, auto `https://` prefix
+- **Edit Services** - Modal with pre-filled fields, inline update
+- **Delete Services** - Confirmation modal, cascades metric deletion
+- **Service Groups** - Create and assign groups
+- **Toast Notifications** - Success/error feedback on every action
 
 ### Production Ready
 
-- **PostgreSQL Support** — Switch from SQLite to PostgreSQL via env var
-- **Environment Variables** — All secrets in `.env`, nothing hardcoded
-- **CORS Middleware** — Ready for API consumers
-- **Structured Logging** — Timestamped logs for all operations
-- **REST API** — Full JSON API + Swagger docs at `/docs`
+- **PostgreSQL Support** - Switch from SQLite to PostgreSQL via env var
+- **Environment Variables** - All secrets in `.env`, nothing hardcoded
+- **CORS Middleware** - Ready for API consumers
+- **Structured Logging** - Timestamped logs for all operations
+- **REST API** - Full JSON API + Swagger docs at `/docs`
 
----
+-
 
 ## Screenshots
 
@@ -53,7 +53,7 @@
 ### Dashboard (WebSocket Live)
 ![Dashboard](docs/dashboard.png)
 
----
+-
 
 ## Tech Stack
 
@@ -69,7 +69,7 @@
 | **Icons** | Lucide Icons (CDN) |
 | **Font** | Inter (Google Fonts) |
 
----
+-
 
 ## Project Structure
 
@@ -104,7 +104,7 @@ PULSE/
 └── README.md
 ```
 
----
+-
 
 ## Setup
 
@@ -127,9 +127,9 @@ cp .env.example .env         # Edit .env with your values
 uvicorn app.main:app --reload
 ```
 
-Open **http://127.0.0.1:8000** — Sign up — Start monitoring.
+Open **http://127.0.0.1:8000** - Sign up - Start monitoring.
 
----
+-
 
 ## Environment Variables
 
@@ -148,7 +148,7 @@ CHECK_INTERVAL=30
 REQUEST_TIMEOUT=5
 ```
 
----
+-
 
 ## Routes
 
@@ -162,7 +162,7 @@ REQUEST_TIMEOUT=5
 | `/docs` | Public | Swagger API docs |
 | `/ws` | - | WebSocket endpoint |
 
----
+-
 
 ## REST API
 
@@ -175,7 +175,7 @@ REQUEST_TIMEOUT=5
 | `DELETE` | `/api/services/{id}` | Delete service |
 | `WS` | `/ws` | Real-time metric stream |
 
----
+-
 
 ## Requirements
 
@@ -185,7 +185,7 @@ python-multipart, websockets, bcrypt, python-jose[cryptography],
 python-dotenv, psycopg2-binary
 ```
 
----
+-
 
 ## License
 
