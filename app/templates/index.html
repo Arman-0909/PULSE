@@ -1,114 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Pulse — API Monitoring</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <style>
-        .hero { padding: 40px 0; max-width: 600px; }
-        .hero h1 { font-size: 32px; font-weight: 600; color: var(--text-primary); letter-spacing: -1px; margin-bottom: 8px; }
-        .hero p { color: var(--text-secondary); font-size: 14px; margin-bottom: 24px; line-height: 1.6; }
-        .hero-actions { display: flex; gap: 12px; }
-
-        .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px; }
-        .feature-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 20px; }
-        .feature-icon { width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
-        .feature-icon.green { background: var(--accent-green-dim); color: var(--accent-green); }
-        .feature-icon.purple { background: var(--accent-purple-dim); color: var(--accent-purple); }
-        .feature-icon.blue { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); }
-        .feature-card h3 { font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
-        .feature-card p { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
-        
-        .uptime-banner { margin-top: 40px; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 24px; display: flex; align-items: center; justify-content: space-between; }
-        .uptime-info h2 { font-size: 24px; font-weight: 600; color: var(--accent-green); font-family: var(--font-mono); margin-bottom: 4px; }
-        .uptime-info p { font-size: 12px; color: var(--text-secondary); }
-        .uptime-chart { width: 300px; height: 8px; background: var(--bg-hover); border-radius: 4px; overflow: hidden; }
-        .uptime-fill { height: 100%; background: var(--accent-green); border-radius: 4px; }
-
-        @media (max-width: 900px) { .feature-grid { grid-template-columns: 1fr; } .uptime-banner { flex-direction: column; align-items: flex-start; gap: 16px; } .uptime-chart { width: 100%; } }
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pulse — API Monitoring</title>
+<link rel="stylesheet" href="/static/style.css">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
 <body>
-    <div class="app-layout">
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <a href="/" class="brand">
-                    <div class="logo-box"><i data-lucide="zap"></i></div>
-                    Pulse Console
-                </a>
-            </div>
-            <div class="sidebar-nav">
-                <div class="sidebar-nav-group">Project</div>
-                <a href="/" class="nav-item active"><i data-lucide="home"></i> Home</a>
-                <div class="sidebar-nav-group">Branch</div>
-                <a href="/dashboard" class="nav-item"><i data-lucide="activity"></i> Monitoring</a>
-                <a href="/admin" class="nav-item"><i data-lucide="server"></i> Services</a>
-                <a href="/docs" class="nav-item"><i data-lucide="file-text"></i> API Docs</a>
-            </div>
-            <div class="sidebar-footer">
-                {% if logged_in %}
-                <a href="/logout" class="nav-item danger" style="color:var(--text-secondary);"><i data-lucide="log-out"></i> Logout</a>
-                {% else %}
-                <a href="/login" class="nav-item"><i data-lucide="log-in"></i> Sign In</a>
-                {% endif %}
-            </div>
-        </aside>
-
-        <!-- MAIN CONTENT -->
-        <main class="main-content">
-            <!-- TOPBAR -->
-            <div class="topbar">
-                <div class="breadcrumbs">
-                    <i data-lucide="box"></i> Pulse <span>/</span> Overview
-                </div>
-                <div class="topbar-actions">
-                    <a href="/dashboard" class="btn"><i data-lucide="activity"></i> Go to Dashboard</a>
-                </div>
-            </div>
-
-            <!-- PAGE CONTENT -->
-            <div class="page-container">
-                <div class="hero">
-                    <h1>Real-time API Monitoring</h1>
-                    <p>Pulse provides continuous health checks, real-time WebSocket updates, and an elegant console to manage your infrastructure endpoints.</p>
-                    <div class="hero-actions">
-                        <a href="/dashboard" class="btn btn-primary">Open Dashboard</a>
-                        <a href="/docs" class="btn">View Documentation</a>
-                    </div>
-                </div>
-
-                <div class="uptime-banner">
-                    <div class="uptime-info">
-                        <h2>{{ uptime_pct }}%</h2>
-                        <p>Global uptime across {{ total }} configured services</p>
-                    </div>
-                    <div class="uptime-chart">
-                        <div class="uptime-fill" style="width: {{ uptime_pct }}%"></div>
-                    </div>
-                </div>
-
-                <div class="feature-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon purple"><i data-lucide="radio"></i></div>
-                        <h3>Live WebSockets</h3>
-                        <p>Receive push updates instantly without polling the server. The dashboard flashes exactly when endpoints go down.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon green"><i data-lucide="shield-check"></i></div>
-                        <h3>Secure Architecture</h3>
-                        <p>Built with bcrypt password hashing, signed JWT tokens, and strict HttpOnly cookie security for admin routes.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon blue"><i data-lucide="database"></i></div>
-                        <h3>Production Ready</h3>
-                        <p>Developed with Python 3.11, FastAPI, and SQLModel. Easily toggle between SQLite for dev and PostgreSQL for prod.</p>
-                    </div>
-                </div>
-            </div>
-        </main>
+<div class="app">
+  <aside class="sb">
+    <div class="sb-logo"><div class="sb-logo-dot"></div> Pulse</div>
+    <div class="sb-section">Project</div>
+    <a href="/" class="sb-link on">Overview</a>
+    <div class="sb-section">Branch</div>
+    <a href="/dashboard" class="sb-link">Monitoring</a>
+    <a href="/admin" class="sb-link">Services</a>
+    <a href="/docs" class="sb-link">API Docs</a>
+    <div class="sb-foot">
+      {% if logged_in %}<a href="/logout">Logout</a>{% else %}<a href="/login">Sign In</a>{% endif %}
     </div>
-    <script src="/static/main.js"></script>
+  </aside>
+
+  <div class="main">
+    <div class="tb">
+      <div class="tb-left">Pulse / <strong>overview</strong></div>
+      <div class="tb-right">
+        <a href="/docs" class="btn sm">Docs</a>
+        <a href="/dashboard" class="btn sm primary">Dashboard</a>
+      </div>
+    </div>
+
+    <div class="pg">
+      <div class="pg-title">Branch overview</div>
+      <div class="pg-sub">production</div>
+
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Total Services</div><div class="stat-val">{{ total }}</div></div>
+        <div class="stat"><div class="stat-label">Avg Latency</div><div class="stat-val">{{ avg_response }}<span style="font-size:11px;color:var(--t2);margin-left:2px">ms</span></div></div>
+        <div class="stat"><div class="stat-label">Online</div><div class="stat-val g">{{ online }}</div></div>
+        <div class="stat"><div class="stat-label">Uptime</div><div class="stat-val g">{{ uptime_pct }}%</div></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div>
+            <div class="section-title">What is Pulse?</div>
+            <div class="section-desc">Automated health monitoring for your APIs</div>
+          </div>
+          <a href="/dashboard" class="btn sm">Open Monitoring →</a>
+        </div>
+        <table class="t">
+          <thead><tr><th>Feature</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td class="name">Live WebSockets</td><td>Push updates the moment an endpoint changes status — no polling.</td></tr>
+            <tr><td class="name">JWT Auth</td><td>bcrypt passwords, signed HS256 tokens, HttpOnly cookies.</td></tr>
+            <tr><td class="name">Check Interval</td><td class="mono">Every {{ check_interval }}s — configurable via <span style="color:var(--t2)">CHECK_INTERVAL</span> env var.</td></tr>
+            <tr><td class="name">PostgreSQL Ready</td><td>Switch from SQLite to PostgreSQL with one env var change.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/static/main.js"></script>
 </body>
 </html>

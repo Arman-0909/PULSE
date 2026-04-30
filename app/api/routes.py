@@ -6,6 +6,7 @@ from sqlmodel import Session, select
 from app.db.database import get_session
 from app.db.models import User, Service, ServiceGroup, Metric
 from app.core.auth import hash_password, verify_password, create_token, decode_token
+from app.core.config import CHECK_INTERVAL
 from app.core.websocket import manager
 from app.utils.logger import get_logger
 
@@ -124,7 +125,8 @@ def home(request: Request, session: Session = Depends(get_session)):
     return templates.TemplateResponse(request, "index.html", context={
         "total": total, "online": online, "offline": total - online,
         "avg_response": avg_response, "uptime_pct": uptime_pct,
-        "logged_in": is_authenticated(request, session)
+        "logged_in": is_authenticated(request, session),
+        "check_interval": CHECK_INTERVAL
     })
 
 

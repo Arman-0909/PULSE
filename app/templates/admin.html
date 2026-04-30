@@ -1,194 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Services — Pulse</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <style>
-        .admin-layout { display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start; }
-        @media (max-width: 900px) { .admin-layout { grid-template-columns: 1fr; } }
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Services — Pulse</title>
+<link rel="stylesheet" href="/static/style.css">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
 <body>
-    <div class="app-layout">
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <a href="/" class="brand">
-                    <div class="logo-box"><i data-lucide="zap"></i></div>
-                    Pulse Console
-                </a>
-            </div>
-            <div class="sidebar-nav">
-                <div class="sidebar-nav-group">Project</div>
-                <a href="/" class="nav-item"><i data-lucide="home"></i> Home</a>
-                <div class="sidebar-nav-group">Branch</div>
-                <a href="/dashboard" class="nav-item"><i data-lucide="activity"></i> Monitoring</a>
-                <a href="/admin" class="nav-item active"><i data-lucide="server"></i> Services</a>
-                <a href="/docs" class="nav-item"><i data-lucide="file-text"></i> API Docs</a>
-            </div>
-            <div class="sidebar-footer">
-                <a href="/logout" class="nav-item danger" style="color:var(--text-secondary);"><i data-lucide="log-out"></i> Logout</a>
-            </div>
-        </aside>
+<div class="app">
+  <aside class="sb">
+    <div class="sb-logo"><div class="sb-logo-dot"></div> Pulse</div>
+    <div class="sb-section">Project</div>
+    <a href="/" class="sb-link">Overview</a>
+    <div class="sb-section">Branch</div>
+    <a href="/dashboard" class="sb-link">Monitoring</a>
+    <a href="/admin" class="sb-link on">Services</a>
+    <a href="/docs" class="sb-link">API Docs</a>
+    <div class="sb-foot"><a href="/logout">Logout</a></div>
+  </aside>
 
-        <!-- MAIN CONTENT -->
-        <main class="main-content">
-            <!-- TOPBAR -->
-            <div class="topbar">
-                <div class="breadcrumbs">
-                    <i data-lucide="box"></i> Pulse <span>/</span> Services
-                </div>
-                <div class="topbar-actions">
-                    <div class="status-indicator">
-                        <div class="dot"></div> Admin
-                    </div>
-                </div>
-            </div>
-
-            <!-- PAGE CONTENT -->
-            <div class="page-container">
-                <h1 class="page-title">Services Configuration</h1>
-                <div class="page-subtitle"><i data-lucide="settings"></i> Manage endpoints and groups</div>
-
-                <div class="admin-layout">
-                    <!-- LEFT COL: FORMS -->
-                    <div>
-                        <div class="panel">
-                            <div class="panel-header"><h2 class="panel-title">Add Endpoint</h2></div>
-                            <form action="/add-service" method="post">
-                                <div class="input-group">
-                                    <label>Service Name</label>
-                                    <input name="name" class="form-control" placeholder="e.g. Auth API" required>
-                                </div>
-                                <div class="input-group">
-                                    <label>URL</label>
-                                    <input name="url" class="form-control" placeholder="https://api.example.com" required>
-                                </div>
-                                <div class="input-group">
-                                    <label>Group</label>
-                                    <input type="hidden" id="group_id" name="group_id" value="">
-                                    <div class="custom-select" data-target="group_id">
-                                        <div class="custom-select-trigger">None</div>
-                                        <div class="custom-select-options">
-                                            <div class="custom-select-option selected" data-value="">None</div>
-                                            {% for g in groups %}<div class="custom-select-option" data-value="{{ g.id }}">{{ g.name }}</div>{% endfor %}
-                                        </div>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary" style="width:100%;">Add Service</button>
-                            </form>
-                        </div>
-
-                        <div class="panel" style="margin-top:24px;">
-                            <div class="panel-header"><h2 class="panel-title">Add Group</h2></div>
-                            <form action="/add-group" method="post">
-                                <div class="input-group">
-                                    <label>Group Name</label>
-                                    <input name="name" class="form-control" placeholder="e.g. Production" required>
-                                </div>
-                                <button type="submit" class="btn" style="width:100%;">Create Group</button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- RIGHT COL: TABLE -->
-                    <div class="panel">
-                        <div class="panel-header">
-                            <h2 class="panel-title">Configured Endpoints ({{ services|length }})</h2>
-                            <button class="btn btn-primary" onclick="document.querySelector('input[name=name]').focus()"><i data-lucide="plus"></i> New</button>
-                        </div>
-                        
-                        {% if services %}
-                        <div class="table-wrapper">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Status</th>
-                                        <th>Service</th>
-                                        <th>URL</th>
-                                        <th>Group</th>
-                                        <th style="text-align:right;">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for s in services %}
-                                    <tr>
-                                        <td>
-                                            <div class="badge {{ s.status }}" style="padding:2px 6px;">
-                                                <div class="dot"></div> {{ s.status }}
-                                            </div>
-                                        </td>
-                                        <td style="font-weight:500;color:var(--text-primary);">{{ s.name }}</td>
-                                        <td style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">{{ s.url }}</td>
-                                        <td>
-                                            {% if s.group_name %}<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:var(--bg-hover);color:var(--text-secondary);border:1px solid var(--border-light);">{{ s.group_name }}</span>{% else %}<span style="color:var(--text-muted);">-</span>{% endif %}
-                                        </td>
-                                        <td style="text-align:right;">
-                                            <div style="display:flex;gap:4px;justify-content:flex-end;">
-                                                <button class="btn" style="padding:4px;border-radius:4px;" onclick="openEdit({{ s.id }}, '{{ s.name }}', '{{ s.url }}', '{{ s.group_id or '' }}')" title="Edit"><i data-lucide="edit-2"></i></button>
-                                                <button class="btn" style="padding:4px;border-radius:4px;color:var(--accent-red);" onclick="confirmDelete({{ s.id }}, '{{ s.name }}')" title="Delete"><i data-lucide="trash-2"></i></button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                        {% else %}
-                        <div style="text-align:center;padding:40px 20px;">
-                            <p style="color:var(--text-muted);font-size:13px;">No endpoints configured yet.</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </main>
+  <div class="main">
+    <div class="tb">
+      <div class="tb-left">Pulse / <strong>services</strong></div>
+      <div class="tb-right">
+        <span class="clock" id="clock"></span>
+        <div class="chip"><div class="dot"></div> Admin</div>
+      </div>
     </div>
 
-<!-- Delete Modal -->
-<div class="modal-overlay" id="deleteModal">
-    <div class="modal">
-        <h3 class="modal-title"><i data-lucide="alert-triangle" style="color:var(--accent-red);"></i> Delete Endpoint</h3>
-        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Are you sure you want to delete <strong id="deleteName" style="color:var(--text-primary);"></strong>? This action cannot be undone.</p>
-        <div class="modal-actions">
-            <button class="btn" onclick="closeModal()">Cancel</button>
-            <form id="deleteForm" method="post" style="margin:0;"><button type="submit" class="btn btn-primary" style="background:var(--accent-red);border-color:var(--accent-red);">Delete</button></form>
+    <div class="pg">
+      <div class="pg-title">Services<span class="cur"></span></div>
+      <div class="pg-sub">Manage monitored endpoints and groups</div>
+
+      <div class="two-col">
+        <!-- LEFT: FORMS -->
+        <div>
+          <div class="section" style="margin-bottom:16px">
+            <div class="section-head"><div><div class="section-title">Add Endpoint</div></div></div>
+            <div style="padding:16px">
+              <form action="/add-service" method="post">
+                <div class="fg"><label>Name</label><input name="name" class="fi" placeholder="Auth API" required></div>
+                <div class="fg"><label>URL</label><input name="url" class="fi" placeholder="https://api.example.com" required></div>
+                <div class="fg">
+                  <label>Group</label>
+                  <input type="hidden" id="gid" name="group_id" value="">
+                  <div class="sel-wrap" data-target="gid">
+                    <div class="sel-trigger">None</div>
+                    <div class="sel-opts">
+                      <div class="sel-opt" data-value="">None</div>
+                      {% for g in groups %}<div class="sel-opt" data-value="{{ g.id }}">{{ g.name }}</div>{% endfor %}
+                    </div>
+                  </div>
+                </div>
+                <button type="submit" class="btn primary" style="width:100%">Add Service</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-head"><div class="section-title">Add Group</div></div>
+            <div style="padding:16px">
+              <form action="/add-group" method="post">
+                <div class="fg"><label>Group Name</label><input name="name" class="fi" placeholder="Production" required></div>
+                <button type="submit" class="btn" style="width:100%">Create Group</button>
+              </form>
+            </div>
+          </div>
         </div>
+
+        <!-- RIGHT: TABLE -->
+        <div class="section">
+          <div class="section-head">
+            <div><div class="section-title">Endpoints ({{ services|length }})</div></div>
+          </div>
+          {% if services %}
+          <table class="t">
+            <thead><tr><th>Status</th><th>Name</th><th>URL</th><th>Group</th><th style="text-align:right">Actions</th></tr></thead>
+            <tbody>
+            {% for s in services %}
+            <tr>
+              <td><span class="badge {{ s.status }}">{{ s.status }}</span></td>
+              <td class="name">{{ s.name }}</td>
+              <td class="mono" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.url }}</td>
+              <td style="color:var(--t3)">{{ s.group_name or '—' }}</td>
+              <td style="text-align:right">
+                <button class="btn sm" onclick="openEdit({{ s.id }},'{{ s.name }}','{{ s.url }}','{{ s.group_id or '' }}')">Edit</button>
+                <button class="btn sm danger" onclick="confirmDel({{ s.id }},'{{ s.name }}')">Del</button>
+              </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <div style="padding:32px 16px;text-align:center;color:var(--t2)">No endpoints yet.</div>
+          {% endif %}
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
-<!-- Edit Modal -->
-<div class="modal-overlay" id="editModal">
-    <div class="modal">
-        <h3 class="modal-title"><i data-lucide="edit-2"></i> Edit Endpoint</h3>
-        <form id="editForm" method="post">
-            <div class="input-group">
-                <label>Service Name</label>
-                <input id="editName" name="name" class="form-control" required>
-            </div>
-            <div class="input-group">
-                <label>Service URL</label>
-                <input id="editUrl" name="url" class="form-control" required>
-            </div>
-            <div class="input-group">
-                <label>Group</label>
-                <input type="hidden" id="editGroup" name="group_id" value="">
-                <div class="custom-select" data-target="editGroup">
-                    <div class="custom-select-trigger">None</div>
-                    <div class="custom-select-options">
-                        <div class="custom-select-option selected" data-value="">None</div>
-                        {% for g in groups %}<div class="custom-select-option" data-value="{{ g.id }}">{{ g.name }}</div>{% endfor %}
-                    </div>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn" onclick="closeEdit()">Cancel</button>
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-            </div>
-        </form>
+<!-- Delete modal -->
+<div class="overlay" id="delModal">
+  <div class="modal">
+    <div class="modal-title">Delete <span id="delName"></span>?</div>
+    <p style="font-size:12px;color:var(--t2)">This cannot be undone.</p>
+    <div class="modal-foot">
+      <button class="btn sm" onclick="closeModals()">Cancel</button>
+      <form id="delForm" method="post" style="margin:0"><button type="submit" class="btn sm danger">Delete</button></form>
     </div>
+  </div>
+</div>
+
+<!-- Edit modal -->
+<div class="overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-title">Edit Endpoint</div>
+    <form id="editForm" method="post">
+      <div class="fg"><label>Name</label><input id="eName" name="name" class="fi" required></div>
+      <div class="fg"><label>URL</label><input id="eUrl" name="url" class="fi" required></div>
+      <div class="fg">
+        <label>Group</label>
+        <input type="hidden" id="eGid" name="group_id" value="">
+        <div class="sel-wrap" data-target="eGid">
+          <div class="sel-trigger">None</div>
+          <div class="sel-opts">
+            <div class="sel-opt" data-value="">None</div>
+            {% for g in groups %}<div class="sel-opt" data-value="{{ g.id }}">{{ g.name }}</div>{% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn sm" onclick="closeModals()">Cancel</button>
+        <button type="submit" class="btn sm primary">Save</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <script src="/static/main.js"></script>

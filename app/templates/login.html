@@ -1,70 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Authentication — Pulse</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign In — Pulse</title>
+<link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <div class="auth-wrapper">
-        <div class="auth-card">
-            <div class="auth-header">
-                <a href="/" style="text-decoration:none;">
-                    <div class="logo-box"><i data-lucide="zap"></i></div>
-                </a>
-                <h1 id="formTitle">Sign in to Pulse</h1>
-                <p id="formSubtitle">Enter your details to access the console</p>
-            </div>
-            
-            {% if error %}
-            <div class="error-msg"><i data-lucide="alert-circle"></i> {{ error }}</div>
-            {% endif %}
-            
-            <div class="tabs">
-                <button class="tab {% if tab != 'signup' %}active{% endif %}" onclick="switchTab('login')">Sign In</button>
-                <button class="tab {% if tab == 'signup' %}active{% endif %}" onclick="switchTab('signup')">Sign Up</button>
-            </div>
-            
-            <div class="form-panel {% if tab != 'signup' %}active{% endif %}" id="loginPanel">
-                <form action="/login" method="post">
-                    <div class="input-group">
-                        <label>Username</label>
-                        <input name="username" class="form-control" placeholder="admin" required>
-                    </div>
-                    <div class="input-group" style="margin-bottom:24px;">
-                        <label>Password</label>
-                        <input name="password" type="password" class="form-control" placeholder="••••••••" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width:100%;padding:10px;">Sign In</button>
-                </form>
-            </div>
-            
-            <div class="form-panel {% if tab == 'signup' %}active{% endif %}" id="signupPanel">
-                <form action="/signup" method="post">
-                    <div class="input-group">
-                        <label>Username</label>
-                        <input name="username" class="form-control" placeholder="Choose a username" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Password</label>
-                        <input name="password" type="password" class="form-control" placeholder="Min 6 characters" required>
-                    </div>
-                    <div class="input-group" style="margin-bottom:24px;">
-                        <label>Confirm Password</label>
-                        <input name="confirm" type="password" class="form-control" placeholder="Confirm password" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width:100%;padding:10px;">Create Account</button>
-                </form>
-            </div>
-            
-            <div style="text-align:center;margin-top:24px;">
-                <a href="/" style="color:var(--text-secondary);font-size:12px;text-decoration:none;"><i data-lucide="arrow-left" style="width:12px;height:12px;vertical-align:-2px;"></i> Back to website</a>
-            </div>
-        </div>
+<div class="auth">
+  <div class="auth-box">
+    <div class="auth-logo"><div class="auth-logo-dot"></div> Pulse</div>
+    {% if error %}<div class="err">{{ error }}</div>{% endif %}
+    <div class="tabs">
+      <button class="tab {% if tab != 'signup' %}on{% endif %}" onclick="sw('login')">Sign In</button>
+      <button class="tab {% if tab == 'signup' %}on{% endif %}" onclick="sw('signup')">Sign Up</button>
     </div>
-    
-    <script src="/static/main.js"></script>
+    <div class="panel {% if tab != 'signup' %}on{% endif %}" id="pLogin">
+      <form action="/login" method="post">
+        <div class="fg"><label>Username</label><input name="username" class="fi" placeholder="admin" required></div>
+        <div class="fg"><label>Password</label><input name="password" type="password" class="fi" placeholder="••••••••" required></div>
+        <button type="submit" class="btn primary" style="width:100%;margin-top:4px">Sign In</button>
+      </form>
+    </div>
+    <div class="panel {% if tab == 'signup' %}on{% endif %}" id="pSignup">
+      <form action="/signup" method="post">
+        <div class="fg"><label>Username</label><input name="username" class="fi" placeholder="Choose username" required></div>
+        <div class="fg"><label>Password</label><input name="password" type="password" class="fi" placeholder="Min 6 chars" required></div>
+        <div class="fg"><label>Confirm</label><input name="confirm" type="password" class="fi" placeholder="Confirm password" required></div>
+        <button type="submit" class="btn primary" style="width:100%;margin-top:4px">Create Account</button>
+      </form>
+    </div>
+    <div style="margin-top:16px;font-size:11px;color:var(--t2)"><a href="/" style="color:var(--t2)">← back</a></div>
+  </div>
+</div>
+<script src="/static/main.js"></script>
 <script src="/static/login.js"></script>
 </body>
 </html>
