@@ -1,85 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Monitoring — Pulse</title>
-<link rel="stylesheet" href="/static/style.css">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Monitoring - PULSE</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
+
 <body>
-<div class="app">
-  <aside class="sb">
-    <div class="sb-logo"><div class="sb-logo-dot"></div> Pulse</div>
-    <div class="sb-section">Project</div>
-    <a href="/" class="sb-link">Overview</a>
-    <div class="sb-section">Branch</div>
-    <a href="/dashboard" class="sb-link on">Monitoring</a>
-    <a href="/admin" class="sb-link">Services</a>
-    <a href="/docs" class="sb-link">API Docs</a>
-    <div class="sb-foot">
-      {% if logged_in %}<a href="/logout">Logout</a>{% else %}<a href="/login">Sign In</a>{% endif %}
-    </div>
-  </aside>
-
-  <div class="main">
-    <div class="tb">
-      <div class="tb-left">Pulse / <strong>production</strong></div>
-      <div class="tb-right">
-        <span class="clock" id="clock"></span>
-        <div class="chip" id="ws-chip"><div class="dot"></div> All OK</div>
+  <div class="app">
+    <aside class="sb">
+      <div class="sb-logo">
+        <div class="sb-logo-dot"></div> PULSE
       </div>
-    </div>
-
-    <div class="pg">
-      <div class="pg-title">Monitoring<span class="cur"></span></div>
-      <div class="pg-sub">Real-time service health. <span style="color:var(--t3); margin-left:8px;">* Updates may take a few seconds to sync.</span></div>
-
-      <div class="stats">
-        <div class="stat"><div class="stat-label">Services</div><div class="stat-val">{{ total }}</div></div>
-        <div class="stat"><div class="stat-label">Online</div><div class="stat-val g">{{ online }}</div></div>
-        <div class="stat"><div class="stat-label">Offline</div><div class="stat-val r">{{ offline }}</div></div>
-        <div class="stat"><div class="stat-label">Avg Response</div><div class="stat-val">{{ avg_response }}<span style="font-size:11px;color:var(--t2);margin-left:2px">ms</span></div></div>
+      <div class="sb-section">Project</div>
+      <a href="/" class="sb-link">Overview</a>
+      <div class="sb-section">Branch</div>
+      <a href="/dashboard" class="sb-link on">Monitoring</a>
+      <a href="/admin" class="sb-link">Services</a>
+      <a href="/docs" class="sb-link">API Docs</a>
+      <div class="sb-foot">
+        {% if logged_in %}<a href="/logout">Logout</a>{% else %}<a href="/login">Sign In</a>{% endif %}
       </div>
+    </aside>
 
-      {% if services %}
-      <div class="section-head" style="border-bottom:none">
-        <div><div class="section-title">Endpoints</div><div class="section-desc">Live status of all configured services</div></div>
-        <a href="/admin" class="btn sm">Manage</a>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(360px, 1fr));gap:16px;margin-bottom:24px">
-        {% for s in services %}
-        <div class="section card" data-svc="{{ s.name }}" style="margin-bottom:0">
-          <div style="padding:16px;border-bottom:1px solid var(--line)">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start">
-              <div>
-                <div class="name" style="font-weight:500;margin-bottom:2px">{{ s.name }}</div>
-                <div class="mono" style="font-size:11px">{{ s.url }}</div>
-              </div>
-              <span class="badge {{ s.status }} svc-status"><span class="dot" style="width:5px;height:5px;border-radius:50%;background:currentColor;display:inline-block"></span> {{ s.status }}</span>
-            </div>
-            <div style="display:flex;gap:24px;margin-top:16px">
-              <div><div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px">Uptime</div><div class="svc-uptime" style="font-family:var(--mono);font-size:13px">{{ s.uptime }}%</div></div>
-              <div><div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px">Response</div><div class="svc-resp" style="font-family:var(--mono);font-size:13px">{{ s.response_time }}ms</div></div>
-              <div><div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px">Checked</div><div class="svc-checked" style="font-family:var(--mono);font-size:13px">{{ s.last_checked }}</div></div>
-            </div>
+    <div class="main">
+      <div class="tb">
+        <div class="tb-left">Pulse / <strong>production</strong></div>
+        <div class="tb-right">
+          <span class="clock" id="clock"></span>
+          <div class="chip" id="ws-chip">
+            <div class="dot"></div> All OK
           </div>
-          <div class="spark" id="spark-{{ s.id }}" style="height:48px;border-top:none"></div>
-        </div>
-        {% endfor %}
-      </div>
-      {% else %}
-      <div class="section">
-        <div style="padding:40px 16px;text-align:center;color:var(--t2)">
-          No services configured. <a href="/admin" style="color:var(--green)">Add one →</a>
         </div>
       </div>
-      {% endif %}
+
+      <div class="pg">
+        <div class="pg-title">Monitoring<span class="cur"></span></div>
+        <div class="pg-sub">Real-time service health. <span style="color:var(--t3); margin-left:8px;">* Updates may take
+            a few seconds to sync.</span></div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">Services</div>
+            <div class="stat-val">{{ total }}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Online</div>
+            <div class="stat-val g">{{ online }}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Offline</div>
+            <div class="stat-val r">{{ offline }}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Avg Response</div>
+            <div class="stat-val">{{ avg_response }}<span
+                style="font-size:11px;color:var(--t2);margin-left:2px">ms</span></div>
+          </div>
+        </div>
+
+        {% if services %}
+        <div class="section-head" style="border-bottom:none">
+          <div>
+            <div class="section-title">Endpoints</div>
+            <div class="section-desc">Live status of all configured services</div>
+          </div>
+          <a href="/admin" class="btn sm">Manage</a>
+        </div>
+        <div
+          style="display:grid;grid-template-columns:repeat(auto-fill, minmax(360px, 1fr));gap:16px;margin-bottom:24px">
+          {% for s in services %}
+          <div class="section card" data-svc="{{ s.name }}" style="margin-bottom:0">
+            <div style="padding:16px;border-bottom:1px solid var(--line)">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                <div>
+                  <div class="name" style="font-weight:500;margin-bottom:2px">{{ s.name }}</div>
+                  <div class="mono" style="font-size:11px">{{ s.url }}</div>
+                </div>
+                <span class="badge {{ s.status }} svc-status"><span class="dot"
+                    style="width:5px;height:5px;border-radius:50%;background:currentColor;display:inline-block"></span>
+                  {{ s.status }}</span>
+              </div>
+              <div style="display:flex;gap:24px;margin-top:16px">
+                <div>
+                  <div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px">Uptime</div>
+                  <div class="svc-uptime" style="font-family:var(--mono);font-size:13px">{{ s.uptime }}%</div>
+                </div>
+                <div>
+                  <div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px">Response
+                  </div>
+                  <div class="svc-resp" style="font-family:var(--mono);font-size:13px">{{ s.response_time }}ms</div>
+                </div>
+                <div>
+                  <div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px">Checked
+                  </div>
+                  <div class="svc-checked" style="font-family:var(--mono);font-size:13px">{{ s.last_checked }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="spark" id="spark-{{ s.id }}" style="height:48px;border-top:none"></div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="section">
+          <div style="padding:40px 16px;text-align:center;color:var(--t2)">
+            No services configured. <a href="/admin" style="color:var(--green)">Add one →</a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
     </div>
   </div>
-</div>
 
-<script id="spark-data" type="application/json">{{ services | tojson }}</script>
-<script src="/static/main.js"></script>
-<script src="/static/dashboard.js"></script>
+  <script id="spark-data" type="application/json">{{ services | tojson }}</script>
+  <script src="/static/main.js"></script>
+  <script src="/static/dashboard.js"></script>
 </body>
+
 </html>

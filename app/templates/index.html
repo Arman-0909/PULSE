@@ -1,67 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pulse — API Monitoring</title>
-<link rel="stylesheet" href="/static/style.css">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PULSE - API Monitoring</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
+
 <body>
-<div class="app">
-  <aside class="sb">
-    <div class="sb-logo"><div class="sb-logo-dot"></div> Pulse</div>
-    <div class="sb-section">Project</div>
-    <a href="/" class="sb-link on">Overview</a>
-    <div class="sb-section">Branch</div>
-    <a href="/dashboard" class="sb-link">Monitoring</a>
-    <a href="/admin" class="sb-link">Services</a>
-    <a href="/docs" class="sb-link">API Docs</a>
-    <div class="sb-foot">
-      {% if logged_in %}<a href="/logout">Logout</a>{% else %}<a href="/login">Sign In</a>{% endif %}
-    </div>
-  </aside>
-
-  <div class="main">
-    <div class="tb">
-      <div class="tb-left">Pulse / <strong>overview</strong></div>
-      <div class="tb-right">
-        <a href="/docs" class="btn sm">Docs</a>
-        <a href="/dashboard" class="btn sm primary">Dashboard</a>
+  <div class="app">
+    <aside class="sb">
+      <div class="sb-logo">
+        <div class="sb-logo-dot"></div> Pulse
       </div>
-    </div>
-
-    <div class="pg">
-      <div class="pg-title">Branch overview</div>
-      <div class="pg-sub">production</div>
-
-      <div class="stats">
-        <div class="stat"><div class="stat-label">Total Services</div><div class="stat-val">{{ total }}</div></div>
-        <div class="stat"><div class="stat-label">Avg Latency</div><div class="stat-val">{{ avg_response }}<span style="font-size:11px;color:var(--t2);margin-left:2px">ms</span></div></div>
-        <div class="stat"><div class="stat-label">Online</div><div class="stat-val g">{{ online }}</div></div>
-        <div class="stat"><div class="stat-label">Uptime</div><div class="stat-val g">{{ uptime_pct }}%</div></div>
+      <div class="sb-section">Project</div>
+      <a href="/" class="sb-link on">Overview</a>
+      <div class="sb-section">Branch</div>
+      <a href="/dashboard" class="sb-link">Monitoring</a>
+      <a href="/admin" class="sb-link">Services</a>
+      <a href="/docs" class="sb-link">API Docs</a>
+      <div class="sb-foot">
+        {% if logged_in %}<a href="/logout">Logout</a>{% else %}<a href="/login">Sign In</a>{% endif %}
       </div>
+    </aside>
 
-      <div class="section">
-        <div class="section-head">
-          <div>
-            <div class="section-title">What is Pulse?</div>
-            <div class="section-desc">Automated health monitoring for your APIs</div>
-          </div>
-          <a href="/dashboard" class="btn sm">Open Monitoring →</a>
+    <div class="main">
+      <div class="tb">
+        <div class="tb-left">Pulse / <strong>overview</strong></div>
+        <div class="tb-right">
+          <a href="/docs" class="btn sm">Docs</a>
+          <a href="/dashboard" class="btn sm primary">Dashboard</a>
         </div>
-        <table class="t">
-          <thead><tr><th>Feature</th><th>Detail</th></tr></thead>
-          <tbody>
-            <tr><td class="name">Live WebSockets</td><td>Push updates the moment an endpoint changes status — no polling.</td></tr>
-            <tr><td class="name">JWT Auth</td><td>bcrypt passwords, signed HS256 tokens, HttpOnly cookies.</td></tr>
-            <tr><td class="name">Check Interval</td><td class="mono">Every {{ check_interval }}s — configurable via <span style="color:var(--t2)">CHECK_INTERVAL</span> env var.</td></tr>
-            <tr><td class="name">PostgreSQL Ready</td><td>Switch from SQLite to PostgreSQL with one env var change.</td></tr>
-          </tbody>
-        </table>
+      </div>
+
+      <div class="pg">
+        <div class="pg-title">Branch overview</div>
+        <div class="pg-sub">production</div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">Total Services</div>
+            <div class="stat-val">{{ total }}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Avg Latency</div>
+            <div class="stat-val">{{ avg_response }}<span
+                style="font-size:11px;color:var(--t2);margin-left:2px">ms</span></div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Online</div>
+            <div class="stat-val g">{{ online }}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Uptime</div>
+            <div class="stat-val g">{{ uptime_pct }}%</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div>
+              <div class="section-title">What is Pulse?</div>
+              <div class="section-desc">Automated health monitoring for your APIs</div>
+            </div>
+            <a href="/dashboard" class="btn sm">Open Monitoring →</a>
+          </div>
+          <table class="t">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>Detail</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="name">Live WebSockets</td>
+                <td>Push updates the moment an endpoint changes status — no polling.</td>
+              </tr>
+              <tr>
+                <td class="name">JWT Auth</td>
+                <td>bcrypt passwords, signed HS256 tokens, HttpOnly cookies.</td>
+              </tr>
+              <tr>
+                <td class="name">Check Interval</td>
+                <td class="mono">Every {{ check_interval }}s — configurable via <span
+                    style="color:var(--t2)">CHECK_INTERVAL</span> env var.</td>
+              </tr>
+              <tr>
+                <td class="name">PostgreSQL Ready</td>
+                <td>Switch from SQLite to PostgreSQL with one env var change.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-</div>
-<script src="/static/main.js"></script>
+  <script src="/static/main.js"></script>
 </body>
+
 </html>
