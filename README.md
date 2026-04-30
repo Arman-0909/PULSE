@@ -90,6 +90,12 @@ PULSE/
 │   │   └── jobs.py            # APScheduler health check jobs
 │   ├── services/
 │   │   └── monitor.py         # HTTP checker + WS broadcaster
+│   ├── static/                # Static assets (CSS/JS)
+│   │   ├── style.css          # Neon console dark theme
+│   │   ├── main.js            # Global scripts (Icons)
+│   │   ├── dashboard.js       # WebSocket & Chart logic
+│   │   ├── admin.js           # Modal & Form logic
+│   │   └── login.js           # Auth tabs logic
 │   ├── templates/
 │   │   ├── index.html         # Home page
 │   │   ├── dashboard.html     # Live dashboard (WebSocket)
