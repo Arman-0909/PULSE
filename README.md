@@ -87,7 +87,7 @@ Real-time API health monitoring with WebSocket live updates, JWT auth, and Postg
 
 -
 
-## 🔄 System Flow
+## System Flow
 
 1. Scheduler triggers health checks
 2. HTTP requests sent to monitored services
