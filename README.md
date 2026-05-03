@@ -1,6 +1,12 @@
 # PULSE - API Monitoring System
 
-> Real-time API health monitoring with WebSocket live updates, JWT auth, and PostgreSQL support.
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green)
+![WebSocket](https://img.shields.io/badge/WebSocket-Realtime-orange)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-DB-blue)
+
+Monitor API health, track uptime, and visualize performance - built to simulate real-world production monitoring systems.
+Real-time API health monitoring with WebSocket live updates, JWT auth, and PostgreSQL support.
 
 ![Dashboard](docs/dashboard.png)
 
@@ -68,6 +74,26 @@
 | **Config** | python-dotenv (.env files) |
 | **Icons** | Lucide Icons (CDN) |
 | **Font** | Inter (Google Fonts) |
+
+-
+
+##  Architecture Highlights
+
+- WebSocket-based real-time data streaming
+- Scheduler-driven background jobs (APScheduler)
+- Modular backend structure (auth, services, monitoring)
+- Async HTTP checks using HTTPX
+- Database abstraction (SQLite → PostgreSQL)
+
+-
+
+## 🔄 System Flow
+
+1. Scheduler triggers health checks
+2. HTTP requests sent to monitored services
+3. Metrics stored in database
+4. WebSocket pushes updates to dashboard
+5. UI updates instantly (no polling)
 
 -
 
