@@ -1,30 +1,22 @@
+import logging
 import httpx
 import time
-import asyncio
 from datetime import datetime
 from sqlmodel import Session, select
 from app.db.database import engine
 from app.db.models import Metric, Service
 from app.core.config import REQUEST_TIMEOUT, DEFAULT_HEADERS
 from app.core.websocket import manager
-from app.utils.logger import get_logger
 
-logger = get_logger("monitor")
+logger = logging.getLogger(__name__)
 
 
 async def check_service(service):
     start_time = time.time()
 
     try:
-        async with httpx.AsyncClient(
-            timeout=REQUEST_TIMEOUT,
-            follow_redirects=True
-        ) as client:
-
-            response = await client.get(
-                service.url,
-                headers=DEFAULT_HEADERS
-            )
+        async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT, follow_redirects=True) as client:
+            response = await client.get(service.url, headers=DEFAULT_HEADERS)
 
         response_time = round((time.time() - start_time) * 1000, 2)
         status_code = response.status_code
@@ -38,7 +30,6 @@ async def check_service(service):
 
     checked_at = datetime.utcnow()
 
-    # Save to DB
     metric = Metric(
         service_id=service.id,
         status_code=status_code,
@@ -50,7 +41,6 @@ async def check_service(service):
         session.add(metric)
         session.commit()
 
-    # Broadcast to WebSocket clients (use plain values, not ORM objects)
     try:
         await manager.broadcast({
             "type": "metric",

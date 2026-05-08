@@ -11,8 +11,8 @@
     <div class="auth-logo"><div class="auth-logo-dot"></div> Pulse</div>
     {% if error %}<div class="err">{{ error }}</div>{% endif %}
     <div class="tabs">
-      <button class="tab {% if tab != 'signup' %}on{% endif %}" onclick="sw('login')">Sign In</button>
-      <button class="tab {% if tab == 'signup' %}on{% endif %}" onclick="sw('signup')">Sign Up</button>
+      <button class="tab {% if tab != 'signup' %}on{% endif %}" onclick="switchTab('login')">Sign In</button>
+      <button class="tab {% if tab == 'signup' %}on{% endif %}" onclick="switchTab('signup')">Sign Up</button>
     </div>
     <div class="panel {% if tab != 'signup' %}on{% endif %}" id="pLogin">
       <form action="/login" method="post">

@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -5,9 +6,14 @@ from fastapi.staticfiles import StaticFiles
 from app.db.database import create_db
 from app.api.routes import router
 from app.scheduler.jobs import start_scheduler
-from app.utils.logger import get_logger
 
-logger = get_logger("pulse")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -26,7 +32,6 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS for API consumers
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

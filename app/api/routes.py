@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Request, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -8,9 +9,8 @@ from app.db.models import User, Service, ServiceGroup, Metric
 from app.core.auth import hash_password, verify_password, create_token, decode_token
 from app.core.config import CHECK_INTERVAL
 from app.core.websocket import manager
-from app.utils.logger import get_logger
 
-logger = get_logger("routes")
+logger = logging.getLogger(__name__)
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
@@ -28,8 +28,11 @@ def get_current_user(request: Request, session: Session) -> User | None:
     return session.exec(select(User).where(User.username == username)).first()
 
 
-def is_authenticated(request: Request, session: Session) -> bool:
-    return get_current_user(request, session) is not None
+def _require_auth(request: Request, session: Session) -> User:
+    user = get_current_user(request, session)
+    if not user:
+        raise HTTPException(status_code=303, headers={"Location": "/login"})
+    return user
 
 
 # =========================
@@ -37,7 +40,7 @@ def is_authenticated(request: Request, session: Session) -> bool:
 # =========================
 @router.get("/login", response_class=HTMLResponse)
 def login_page(request: Request, session: Session = Depends(get_session)):
-    if is_authenticated(request, session):
+    if get_current_user(request, session):
         return RedirectResponse(url="/admin", status_code=303)
     error = request.query_params.get("error", "")
     tab = request.query_params.get("tab", "login")
@@ -110,12 +113,17 @@ def logout():
 def home(request: Request, session: Session = Depends(get_session)):
     services = session.exec(select(Service)).all()
     total = len(services)
-    online = 0; total_response = 0; checked = 0
+    online = 0
+    total_response = 0
+    checked = 0
 
     for service in services:
-        latest = session.exec(select(Metric).where(Metric.service_id == service.id).order_by(Metric.id.desc())).first()
+        latest = session.exec(
+            select(Metric).where(Metric.service_id == service.id).order_by(Metric.id.desc())
+        ).first()
         if latest:
-            if latest.success: online += 1
+            if latest.success:
+                online += 1
             total_response += latest.response_time
             checked += 1
 
@@ -123,9 +131,12 @@ def home(request: Request, session: Session = Depends(get_session)):
     uptime_pct = round((online / total) * 100, 1) if total > 0 else 100
 
     return templates.TemplateResponse(request, "index.html", context={
-        "total": total, "online": online, "offline": total - online,
-        "avg_response": avg_response, "uptime_pct": uptime_pct,
-        "logged_in": is_authenticated(request, session),
+        "total": total,
+        "online": online,
+        "offline": total - online,
+        "avg_response": avg_response,
+        "uptime_pct": uptime_pct,
+        "logged_in": get_current_user(request, session) is not None,
         "check_interval": CHECK_INTERVAL
     })
 
@@ -139,10 +150,14 @@ def dashboard(request: Request, session: Session = Depends(get_session)):
     groups_map = {g.id: g.name for g in session.exec(select(ServiceGroup)).all()}
 
     result = []
-    total_online = 0; total_response = 0; checked_count = 0
+    total_online = 0
+    total_response = 0
+    checked_count = 0
 
     for service in services:
-        metrics = session.exec(select(Metric).where(Metric.service_id == service.id).order_by(Metric.id.desc())).all()
+        metrics = session.exec(
+            select(Metric).where(Metric.service_id == service.id).order_by(Metric.id.desc())
+        ).all()
         total = len(metrics)
         success = len([m for m in metrics if m.success])
         uptime = (success / total * 100) if total > 0 else 0
@@ -151,22 +166,33 @@ def dashboard(request: Request, session: Session = Depends(get_session)):
         last_checked = metrics[0].checked_at.strftime("%H:%M:%S") if metrics else "Never"
         sparkline = [m.response_time for m in reversed(metrics[:20])]
 
-        if status == "up": total_online += 1
-        if metrics: total_response += response_time; checked_count += 1
+        if status == "up":
+            total_online += 1
+        if metrics:
+            total_response += response_time
+            checked_count += 1
 
         result.append({
-            "id": service.id, "name": service.name, "url": service.url,
+            "id": service.id,
+            "name": service.name,
+            "url": service.url,
             "group": groups_map.get(service.group_id),
-            "status": status, "uptime": round(uptime, 1),
+            "status": status,
+            "uptime": round(uptime, 1),
             "response_time": round(response_time, 1),
-            "last_checked": last_checked, "sparkline": sparkline, "total_checks": total
+            "last_checked": last_checked,
+            "sparkline": sparkline,
+            "total_checks": total
         })
 
     avg_response = round(total_response / checked_count, 1) if checked_count > 0 else 0
     return templates.TemplateResponse(request, "dashboard.html", context={
-        "services": result, "total": len(services),
-        "online": total_online, "offline": len(services) - total_online,
-        "avg_response": avg_response, "logged_in": is_authenticated(request, session)
+        "services": result,
+        "total": len(services),
+        "online": total_online,
+        "offline": len(services) - total_online,
+        "avg_response": avg_response,
+        "logged_in": get_current_user(request, session) is not None
     })
 
 
@@ -185,14 +211,20 @@ def admin_page(request: Request, session: Session = Depends(get_session)):
 
     services_data = []
     for s in services:
-        latest = session.exec(select(Metric).where(Metric.service_id == s.id).order_by(Metric.id.desc())).first()
+        latest = session.exec(
+            select(Metric).where(Metric.service_id == s.id).order_by(Metric.id.desc())
+        ).first()
         services_data.append({
-            "id": s.id, "name": s.name, "url": s.url,
-            "group_id": s.group_id, "group_name": groups_map.get(s.group_id),
+            "id": s.id,
+            "name": s.name,
+            "url": s.url,
+            "group_id": s.group_id,
+            "group_name": groups_map.get(s.group_id),
             "status": "up" if latest and latest.success else ("down" if latest else "pending"),
         })
 
-    toast = None; toast_type = "success"
+    toast = None
+    toast_type = "success"
     if request.query_params.get("added"):
         toast = f"Service \"{request.query_params.get('added')}\" added"
     elif request.query_params.get("deleted"):
@@ -202,24 +234,21 @@ def admin_page(request: Request, session: Session = Depends(get_session)):
     elif request.query_params.get("group_added"):
         toast = f"Group \"{request.query_params.get('group_added')}\" created"
     elif request.query_params.get("error"):
-        toast = request.query_params.get("error"); toast_type = "error"
+        toast = request.query_params.get("error")
+        toast_type = "error"
 
     return templates.TemplateResponse(request, "admin.html", context={
-        "services": services_data, "groups": groups,
-        "toast": toast, "toast_type": toast_type, "user": user
+        "services": services_data,
+        "groups": groups,
+        "toast": toast,
+        "toast_type": toast_type,
+        "user": user
     })
 
 
 # =========================
 # CRUD (auth required)
 # =========================
-def _require_auth(request: Request, session: Session) -> User:
-    user = get_current_user(request, session)
-    if not user:
-        raise HTTPException(status_code=303, headers={"Location": "/login"})
-    return user
-
-
 @router.post("/add-service")
 async def add_service(request: Request, session: Session = Depends(get_session)):
     _require_auth(request, session)
@@ -253,12 +282,15 @@ async def edit_service(service_id: int, request: Request, session: Session = Dep
     url = form.get("url", "").strip()
     group_id = form.get("group_id")
 
-    if name: service.name = name
+    if name:
+        service.name = name
     if url:
-        if not url.startswith(("http://", "https://")): url = "https://" + url
+        if not url.startswith(("http://", "https://")):
+            url = "https://" + url
         service.url = url
     service.group_id = int(group_id) if group_id else None
-    session.add(service); session.commit()
+    session.add(service)
+    session.commit()
     logger.info(f"Service edited: {service.name}")
     return RedirectResponse(url=f"/admin?edited={service.name}", status_code=303)
 
@@ -273,7 +305,8 @@ async def add_group(request: Request, session: Session = Depends(get_session)):
     if session.exec(select(ServiceGroup).where(ServiceGroup.name == name)).first():
         return RedirectResponse(url="/admin?error=Group+exists", status_code=303)
 
-    session.add(ServiceGroup(name=name)); session.commit()
+    session.add(ServiceGroup(name=name))
+    session.commit()
     logger.info(f"Group created: {name}")
     return RedirectResponse(url=f"/admin?group_added={name}", status_code=303)
 
@@ -287,7 +320,8 @@ def delete_service(service_id: int, request: Request, session: Session = Depends
     name = service.name
     for m in session.exec(select(Metric).where(Metric.service_id == service_id)).all():
         session.delete(m)
-    session.delete(service); session.commit()
+    session.delete(service)
+    session.commit()
     logger.info(f"Service deleted: {name}")
     return RedirectResponse(url=f"/admin?deleted={name}", status_code=303)
 
@@ -314,14 +348,19 @@ def api_services(session: Session = Depends(get_session)):
     groups_map = {g.id: g.name for g in session.exec(select(ServiceGroup)).all()}
     result = []
     for s in services:
-        latest = session.exec(select(Metric).where(Metric.service_id == s.id).order_by(Metric.id.desc())).first()
+        latest = session.exec(
+            select(Metric).where(Metric.service_id == s.id).order_by(Metric.id.desc())
+        ).first()
         metrics = session.exec(select(Metric).where(Metric.service_id == s.id)).all()
-        total = len(metrics); success = len([m for m in metrics if m.success])
+        total = len(metrics)
+        success = len([m for m in metrics if m.success])
         result.append({
-            "id": s.id, "name": s.name, "url": s.url,
+            "id": s.id,
+            "name": s.name,
+            "url": s.url,
             "group": groups_map.get(s.group_id),
             "status": "up" if latest and latest.success else "down",
-            "uptime": round((success/total*100) if total > 0 else 0, 1),
+            "uptime": round((success / total * 100) if total > 0 else 0, 1),
             "response_time": round(latest.response_time, 1) if latest else 0,
             "last_checked": latest.checked_at.isoformat() if latest else None,
             "sparkline": [m.response_time for m in metrics[-20:]]
@@ -332,15 +371,23 @@ def api_services(session: Session = Depends(get_session)):
 @router.get("/api/stats", tags=["API"])
 def api_stats(session: Session = Depends(get_session)):
     services = session.exec(select(Service)).all()
-    online = 0; total_response = 0; checked = 0
+    online = 0
+    total_response = 0
+    checked = 0
     for s in services:
-        latest = session.exec(select(Metric).where(Metric.service_id == s.id).order_by(Metric.id.desc())).first()
+        latest = session.exec(
+            select(Metric).where(Metric.service_id == s.id).order_by(Metric.id.desc())
+        ).first()
         if latest:
-            if latest.success: online += 1
-            total_response += latest.response_time; checked += 1
+            if latest.success:
+                online += 1
+            total_response += latest.response_time
+            checked += 1
     total = len(services)
     return {
-        "total": total, "online": online, "offline": total - online,
+        "total": total,
+        "online": online,
+        "offline": total - online,
         "avg_response": round(total_response / checked, 1) if checked > 0 else 0,
         "uptime_pct": round((online / total) * 100, 1) if total > 0 else 100
     }
@@ -349,19 +396,36 @@ def api_stats(session: Session = Depends(get_session)):
 @router.get("/api/services/{sid}/metrics", tags=["API"])
 def api_metrics(sid: int, session: Session = Depends(get_session)):
     service = session.get(Service, sid)
-    if not service: raise HTTPException(404, "Not found")
-    metrics = session.exec(select(Metric).where(Metric.service_id == sid).order_by(Metric.id.desc())).all()
-    return {"service": {"id": service.id, "name": service.name}, "count": len(metrics),
-            "metrics": [{"status_code": m.status_code, "response_time": m.response_time, "success": m.success, "checked_at": m.checked_at.isoformat()} for m in metrics[:100]]}
+    if not service:
+        raise HTTPException(404, "Not found")
+    metrics = session.exec(
+        select(Metric).where(Metric.service_id == sid).order_by(Metric.id.desc())
+    ).all()
+    return {
+        "service": {"id": service.id, "name": service.name},
+        "count": len(metrics),
+        "metrics": [
+            {
+                "status_code": m.status_code,
+                "response_time": m.response_time,
+                "success": m.success,
+                "checked_at": m.checked_at.isoformat()
+            }
+            for m in metrics[:100]
+        ]
+    }
 
 
 @router.delete("/api/services/{sid}", tags=["API"])
 def api_delete(sid: int, session: Session = Depends(get_session)):
     service = session.get(Service, sid)
-    if not service: raise HTTPException(404, "Not found")
+    if not service:
+        raise HTTPException(404, "Not found")
     name = service.name
-    for m in session.exec(select(Metric).where(Metric.service_id == sid)).all(): session.delete(m)
-    session.delete(service); session.commit()
+    for m in session.exec(select(Metric).where(Metric.service_id == sid)).all():
+        session.delete(m)
+    session.delete(service)
+    session.commit()
     return {"deleted": name}
 
 
