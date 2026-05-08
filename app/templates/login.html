@@ -33,6 +33,14 @@
   </div>
 </div>
 <script src="/static/main.js"></script>
-<script src="/static/login.js"></script>
+<script>
+function switchTab(tab) {
+    document.getElementById('pLogin').classList.toggle('on', tab === 'login');
+    document.getElementById('pSignup').classList.toggle('on', tab === 'signup');
+    document.querySelectorAll('.tab').forEach((btn, i) => {
+        btn.classList.toggle('on', i === (tab === 'login' ? 0 : 1));
+    });
+}
+</script>
 </body>
 </html>
