@@ -1,8 +1,8 @@
-from fastapi import WebSocket
-from app.utils.logger import get_logger
+import logging
 import json
+from fastapi import WebSocket
 
-logger = get_logger("websocket")
+logger = logging.getLogger("websocket")
 
 
 class ConnectionManager:
