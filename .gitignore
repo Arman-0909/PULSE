@@ -1,50 +1,78 @@
-env/
-*.pyc
-.env
-pulse.db
-*.db
+# =========================
 # Python
+# =========================
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
 *.pyd
+*.pyz
+*.so
 
-# Virtual environment
+# =========================
+# Virtual Environment
+# =========================
 env/
 venv/
 ENV/
+.venv/
+.env/
 
-# Environment variables (IMPORTANT)
+# =========================
+# Environment Variables
+# =========================
 .env
 
+# =========================
 # Database
+# =========================
 *.db
 *.sqlite3
 
+# =========================
 # Logs
+# =========================
 *.log
+logs/
 
-# VS Code
-.vscode/
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Python build
+# =========================
+# Build / Distribution
+# =========================
 build/
 dist/
 *.egg-info/
+*.egg
+.eggs/
 
-# Cache
-.cache/
-
-# pytest (if you add later)
+# =========================
+# Testing
+# =========================
 .pytest_cache/
-
-# mypy (if you use later)
-.mypy_cache/
-
-# coverage (if you test later)
 .coverage
 htmlcov/
+.tox/
+
+# =========================
+# Type Checking
+# =========================
+.mypy_cache/
+
+# =========================
+# Caching
+# =========================
+.cache/
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
