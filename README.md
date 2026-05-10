@@ -4,7 +4,7 @@
 
 ![Dashboard](docs/dashboard.png)
 
--
+---
 
 ## Features
 
@@ -191,7 +191,7 @@ python-multipart, websockets, bcrypt, python-jose[cryptography],
 python-dotenv, psycopg2-binary
 ```
 
--
+---
 
 ## License
 
