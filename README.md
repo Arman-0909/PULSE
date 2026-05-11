@@ -69,7 +69,6 @@
 | **Icons** | Lucide Icons (CDN) |
 | **Font** | Inter (Google Fonts) |
 
--
 
 ## Project Structure
 
