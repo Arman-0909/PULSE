@@ -1,5 +1,7 @@
 # PULSE - API Monitoring System
 
+---
+
 > Real-time API health monitoring with WebSocket live updates, JWT auth, and PostgreSQL support.
 
 ![Dashboard](docs/dashboard.png)
